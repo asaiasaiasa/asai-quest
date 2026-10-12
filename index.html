@@ -208,6 +208,12 @@ ol{margin:0;padding-left:20px}
 .tr{display:grid;grid-template-columns:86px 1fr 24px;align-items:center;gap:8px;font-size:13px}
 .tr .bar{height:8px}
 .log{display:flex;flex-wrap:wrap;gap:6px}
+.stime{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stime-r{display:grid;grid-template-columns:48px 48px minmax(0,1fr) 48px 48px;gap:6px;align-items:center;width:100%}
+.sq.sm{width:48px;font-size:12px}
+.stime .tv.past{color:var(--gold)}
+.log .logx{font-size:13px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-height:36px}
+.log .logx b{color:var(--bad);margin-left:4px}
 .log span{font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 .dates{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}
 .dates div{font:600 13px var(--f-d);text-align:center}
@@ -799,8 +805,13 @@ function viewSmoke(C){
     h+='<p class="line">Сэкономлено с Х-дня: <b class="tn">'+Math.round(saved)+' ₽</b></p>'}
   else if(!price)h+='<p class="mute small">Укажи цену пачки в настройках на вкладке «Мастер», и здесь появятся сэкономленные деньги.</p>';
   h+='</section>';
-  h+='<section class="panel"><h2>Закурил: какой был повод</h2><div class="chips">'+TRIG.map(function(x){return '<button class="chip" data-act="stick" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>';
-  if(n)h+='<div class="log">'+d.sticks.map(function(s){return '<span class="tn">'+esc(s.t)+' · '+esc(s.trig)+'</span>'}).join('')+'</div><button class="link" data-act="unstick">Убрать последнюю запись</button>';
+  var sm=S.stickT!=null?S.stickT:nowMin(),past=S.stickT!=null;
+  h+='<section class="panel"><h2>Закурил: какой был повод</h2>'
+    +'<div class="stime"><span class="lbl">Время</span><div class="stime-r"><button class="sq sm" data-act="stime" data-d="-60" aria-label="На час раньше">−1ч</button><button class="sq sm" data-act="stime" data-d="-15" aria-label="На 15 минут раньше">−15</button>'
+    +'<b class="tv tn'+(past?' past':'')+'">'+hhmm(sm)+'</b><button class="sq sm" data-act="stime" data-d="15"'+(past?'':' disabled')+' aria-label="На 15 минут позже">+15</button><button class="sq sm" data-act="stime" data-d="60"'+(past?'':' disabled')+' aria-label="На час позже">+1ч</button></div>'
+    +(past?'<button class="link" data-act="stimenow">Вернуть «сейчас»</button>':'<span class="mute small">сейчас · чтобы вписать прошлый стик, сдвинь время назад</span>')+'</div>'
+    +'<div class="chips">'+TRIG.map(function(x){return '<button class="chip" data-act="stick" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>';
+  if(n)h+='<span class="lbl">Записано сегодня · нажми, чтобы удалить</span><div class="log">'+d.sticks.map(function(s,i){return '<button class="logx tn" data-act="delstick" data-v="'+i+'" aria-label="Удалить '+esc(s.t)+'">'+esc(s.t)+' · '+esc(s.trig)+' <b>×</b></button>'}).join('')+'</div>';
   h+='</section>';
   var c=S.craving,rem=c?c.end-Date.now():0;
   h+='<section class="panel"><h2>Тяга</h2>';
@@ -915,14 +926,16 @@ function restoreCraving(){var c=null;try{c=JSON.parse(lsGet('asai.craving'))}cat
 function endCraving(){S.craving=null;lsSet('asai.craving','');clearInterval(tmr)}
 
 /* ---------- actions ---------- */
+function skey(t){var p=String(t).split(':').map(Number),m=p[0]*60+p[1];return m<300?m+1440:m}
+function mkey(m){return m<300?m+1440:m}
 function logStick(trig){
-  var now=new Date();
-  mutate(todayISO(),function(d){d.sticks=d.sticks||[];d.sticks.push({t:hhmm(now.getHours()*60+now.getMinutes()),trig:trig})},false,'Записано · '+trig);
+  var now=new Date(),m=S.stickT!=null?S.stickT:now.getHours()*60+now.getMinutes(),t=hhmm(m);
+  mutate(todayISO(),function(d){d.sticks=d.sticks||[];d.sticks.push({t:t,trig:trig});d.sticks.sort(function(a,b){return skey(a.t)-skey(b.t)})},false,'Записано '+t+' · '+trig);
 }
 function food(d){d.food=d.food||{};return d.food}
 function act(a,el){
   var v=el.dataset.v,dd=Number(el.dataset.d),k=el.dataset.k,date=el.dataset.date||ctxDate(),today=todayISO();
-  if(a==='tab'){S.tab=v;lsSet('asai.tab',v);if(v==='now')S.view=today;render();window.scrollTo(0,0)}
+  if(a==='tab'){S.tab=v;S.stickT=null;lsSet('asai.tab',v);if(v==='now')S.view=today;render();window.scrollTo(0,0)}
   else if(a==='prev'){S.view=addDays(S.view,-1);S.dm=null;render()}
   else if(a==='next'){if(S.view<today){S.view=addDays(S.view,1);S.dm=null;render()}}
   else if(a==='bed'){var m=draft(date);m.bedRel=clamp(m.bedRel+dd,0,720);render()}
@@ -943,6 +956,9 @@ function act(a,el){
   else if(a==='skinstate'){mutate(date,function(d){d.skin=d.skin||{};d.skin.state=Number(v)})}
   else if(a==='stress'){mutate(date,function(d){d.stress=Number(v)})}
   else if(a==='stick'){logStick(v)}
+  else if(a==='stime'){var nk=mkey(nowMin()),k=mkey(S.stickT!=null?S.stickT:nowMin())+dd;k=clamp(k,300,nk);S.stickT=k>=nk?null:k%1440;render()}
+  else if(a==='stimenow'){S.stickT=null;render()}
+  else if(a==='delstick'){var di=Number(v),ds=S.days[today]&&S.days[today].sticks&&S.days[today].sticks[di];if(!ds)return;mutate(today,function(d){d.sticks.splice(di,1)},false,'Удалено '+ds.t)}
   else if(a==='unstick'){mutate(today,function(d){if(d.sticks&&d.sticks.length)d.sticks.pop()})}
   else if(a==='cstart'){startCraving();render()}
   else if(a==='cravego'){startCraving();S.tab='smoke';render();window.scrollTo(0,0)}
