@@ -127,9 +127,9 @@ ol{margin:0;padding-left:20px}
 
 /* steppers */
 .tstep{display:flex;flex-direction:column;gap:6px;align-items:center;min-width:0}
-.tstep-r{display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;gap:4px;width:100%}
-.tstep .sq{width:40px;height:44px}
-.tstep .tv{font-size:clamp(16px,5vw,22px);letter-spacing:-.02em;white-space:nowrap}
+.tstep-r{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:4px;width:100%}
+.tstep .sq{width:36px;height:44px;font-size:18px}
+.tstep .tv{font-size:clamp(14px,4.3vw,20px);letter-spacing:-.02em;white-space:nowrap}
 .tv{text-align:center;font:700 24px/1 var(--f-d);font-variant-numeric:tabular-nums}
 .nstep{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nstep .nl{font-size:14px}
@@ -223,6 +223,9 @@ ol{margin:0;padding-left:20px}
 .ask .txt{flex:1;min-width:0}
 .txt{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px}
 .fld{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--mute)}
+.fld .txt{min-width:0;max-width:100%;display:block}
+input[type=date].txt{-webkit-appearance:none;appearance:none;text-align:left;min-height:48px}
+input[type=date].txt::-webkit-date-and-time-value{text-align:left}
 
 /* master brief + twists */
 .panel.brief{border-color:var(--line);background:linear-gradient(135deg,#1a1f3a 0%,var(--panel) 60%)}
@@ -1227,7 +1230,7 @@ function boot(){
   S.ready=true;render();
   if(GH)pull();
   setInterval(function(){if(GH&&document.visibilityState==='visible')pull()},300000);
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){});var reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(reloaded||typing())return;reloaded=true;location.reload()})}
 }
 S.lastToday=todayISO();
 boot();
