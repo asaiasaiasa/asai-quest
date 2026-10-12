@@ -14,28 +14,29 @@
 <title>Прокачка asai</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
 <style>
-/* Layout: phone-first night-watch HUD. A live sky header that follows the real time of day, one scrolling column of panels, fixed five-tab bar. Deliberately single dark theme. */
+/* Layout: phone-first night-watch HUD. Live sky header follows real time, one scrolling column, fixed five-tab bar. Single dark theme by design. */
 :root{
   --bg:#0a0f1d; --panel:#111a2c; --panel2:#17223a; --line:#24314b; --ink:#e9eef7; --mute:#8d9ab3;
   --gold:#f2c14e; --gold-d:#a57b14; --gold-ink:#2a1d00; --shadow:#060a14; --track:#1e2a42;
-  --rec:#6aa8ff; --fuel:#f09a4a; --str:#e66b5b; --eng:#4fd1a5; --skin:#c993f0;
-  --good:#5fd08f; --bad:#ef6b5e; --sky-ink:#ffffff;
+  --sleep:#6aa8ff; --body:#f09a4a; --skin:#c993f0; --will:#4fd1a5; --duo:#ff8fa3;
+  --good:#5fd08f; --bad:#ef6b5e;
   --f-d:'Unbounded','Arial Black',system-ui,sans-serif;
   --f-b:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{overscroll-behavior-y:none}
 [hidden]{display:none!important}
+html,body{overscroll-behavior-y:none}
 html{background:var(--bg)}
 body{margin:0;padding-inline:16px;padding-block:0 112px;background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-b);-webkit-text-size-adjust:100%}
 #app{max-width:480px;margin-inline:auto}
-button,input{font:inherit;color:inherit}
+button,input,select{font:inherit;color:inherit}
 button{cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 h2{margin:0;font:600 11px/1.2 var(--f-d);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
 p{margin:0}
 ol{margin:0;padding-left:20px}
+a{color:var(--gold)}
 .mute{color:var(--mute)}
 .small{font-size:13px}
 .tn{font-variant-numeric:tabular-nums}
@@ -46,44 +47,63 @@ ol{margin:0;padding-left:20px}
 .split>*{min-width:0}
 
 /* sky */
-.sky{position:relative;margin-inline:-16px;padding:calc(58px + env(safe-area-inset-top,0px)) 16px 34px;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;gap:9px;color:var(--sky-ink);background:linear-gradient(180deg,var(--s1) 0%,var(--s2) 100%);text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.sky{position:relative;margin-inline:-16px;padding:calc(58px + env(safe-area-inset-top,0px)) 16px 34px;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;gap:9px;color:#fff;background:linear-gradient(180deg,var(--s1) 0%,var(--s2) 100%);text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .sky.night{--s1:#04071a;--s2:#18204d;--st:1}
 .sky.wind{--s1:#090e2c;--s2:#3b2b5e;--st:.75}
 .sky.evening{--s1:#272150;--s2:#b8603c;--st:.15}
 .sky.day{--s1:#1b4b80;--s2:#5f95c6;--st:0}
 .sky.morning{--s1:#24315c;--s2:#cf8460;--st:.3}
-.sky::before{content:"";position:absolute;inset:0;z-index:-2;opacity:var(--st);background-image:
+.sky::before{content:"";position:absolute;inset:0;z-index:-3;opacity:var(--st);background-image:
   radial-gradient(1.5px 1.5px at 8% 18%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 19% 44%,#fff 50%,transparent 55%),
   radial-gradient(1.2px 1.2px at 31% 12%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 43% 36%,#fff 50%,transparent 55%),
   radial-gradient(1.6px 1.6px at 57% 20%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 66% 50%,#fff 50%,transparent 55%),
   radial-gradient(1.2px 1.2px at 78% 14%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 88% 40%,#fff 50%,transparent 55%),
   radial-gradient(1.4px 1.4px at 95% 8%,#fff 50%,transparent 55%),radial-gradient(1px 1px at 50% 6%,#fff 50%,transparent 55%)}
 .sky::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:26px;z-index:-1;background:var(--bg);clip-path:polygon(0 72%,7% 48%,15% 66%,25% 30%,35% 58%,47% 24%,57% 52%,69% 34%,81% 60%,91% 36%,100% 54%,100% 100%,0 100%)}
-.orb{position:absolute;z-index:-1;border-radius:50%;transform:translate(-50%,-50%);transition:left 1s,top 1s}
+.aur{position:absolute;inset:-20% -10% 30%;z-index:-2;opacity:.55;filter:blur(18px);background:
+  linear-gradient(100deg,transparent 10%,rgba(79,209,165,.55) 25%,transparent 40%,rgba(106,168,255,.45) 55%,transparent 70%,rgba(201,147,240,.4) 82%,transparent 95%);
+  animation:aur 14s ease-in-out infinite alternate}
+@keyframes aur{from{transform:translateX(-8%) skewY(-4deg)}to{transform:translateX(8%) skewY(3deg)}}
+.orb{position:absolute;z-index:-1;border-radius:50%;transform:translate(-50%,-50%)}
 .orb.sun{width:40px;height:40px;background:radial-gradient(circle,#fff7da 0 32%,#ffd36b 55%,rgba(255,200,90,0) 72%)}
 .orb.moon{width:24px;height:24px;background:#ece8d6;box-shadow:inset -7px -3px 0 0 #b8b199,0 0 18px rgba(236,232,214,.45)}
 .hud-row{display:flex;align-items:center;gap:12px}
-.sigil{width:44px;height:44px;flex:none;display:grid;place-items:center;border:2px solid var(--gold);border-radius:10px;background:rgba(5,8,20,.45);font:700 20px var(--f-d);color:var(--gold)}
+.emblem{width:52px;height:52px;flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
 .hud-id{flex:1;min-width:0}
 .hud-name{font:700 19px/1.1 var(--f-d);letter-spacing:.02em}
-.hud-rank{font-size:12px;opacity:.85}
+.hud-rank{font-size:12px;opacity:.88}
 .lvl{display:flex;align-items:baseline;gap:5px;font-family:var(--f-d)}
 .lvl span{font-size:11px;opacity:.8}
 .lvl b{font-size:30px;line-height:1;color:var(--gold)}
+.hud-chips{display:flex;gap:6px;flex-wrap:wrap}
+.hchip{font:600 11px var(--f-b);padding:3px 8px;border-radius:20px;background:rgba(4,7,18,.45);text-shadow:none}
+.hchip.hot{background:var(--gold);color:var(--gold-ink)}
 .phase{font-size:13px;font-weight:500}
 .xpbar{height:9px;background:rgba(4,7,18,.5);border-radius:5px;overflow:hidden}
-.xpbar i{display:block;height:100%;background:var(--gold);border-radius:5px}
+.xpbar i{display:block;height:100%;background:var(--gold);border-radius:5px;transition:width .6s ease}
 .xp-meta{display:flex;justify-content:space-between;font-size:12px;opacity:.85}
 
 /* panels */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
 .panel.focus{border-color:var(--gold);background:linear-gradient(180deg,#1a2133 0%,var(--panel) 70%)}
 .panel.slim{padding:10px 14px}
+.panel.twist{border-color:var(--skin);background:linear-gradient(180deg,#22183a 0%,var(--panel) 75%)}
+.panel.duo{border-color:var(--duo);background:linear-gradient(180deg,#2c1825 0%,var(--panel) 75%)}
+.panel.boss{border-color:#3a2a4a;background:radial-gradient(120% 80% at 50% 0%,#24183a 0%,var(--panel) 70%)}
 .title{font:700 18px/1.2 var(--f-d)}
 .tag{font:600 11px var(--f-d);color:var(--gold-ink);background:var(--gold);padding:3px 8px;border-radius:5px;white-space:nowrap}
+.tag.twist{background:var(--skin);color:#1d0f2b}
+.tag.duo{background:var(--duo);color:#2b0c14}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .line{font-size:14px}
 .lbl{font-size:12px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.lore{font-size:14px;line-height:1.5;color:#cbd4e4;font-style:italic}
+
+/* master voice */
+.master{display:flex;gap:12px;align-items:flex-start}
+.owl{width:44px;height:44px;flex:none}
+.master .say-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.master .who{font:600 11px var(--f-d);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
 
 /* stats */
 .stat{display:flex;flex-direction:column;gap:5px}
@@ -96,9 +116,17 @@ ol{margin:0;padding-left:20px}
 .seg i.on{background:var(--c)}
 
 /* boss */
+.boss-top{display:flex;gap:14px;align-items:center}
+.boss-art{width:76px;height:76px;flex:none;transition:transform .3s}
+.boss-art.dead{filter:grayscale(1) brightness(.6);transform:rotate(-12deg) scale(.92)}
+.boss-art.hit{animation:hit .5s ease-out}
+@keyframes hit{0%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-4deg)}40%{transform:translateX(6px) rotate(3deg)}60%{transform:translateX(-3px)}100%{transform:none}}
+.hp{display:grid;gap:4px}
+.hp i{height:12px;border-radius:3px;background:var(--bad)}
+.hp i.lost{background:var(--track)}
 .pips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .pip{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--mute)}
-.pip i{width:100%;height:24px;border-radius:5px;background:var(--track);border:2px solid transparent}
+.pip i{width:100%;height:22px;border-radius:5px;background:var(--track);border:2px solid transparent}
 .pip.ok i{background:var(--good)}
 .pip.miss i{background:#33222a;border-color:var(--bad)}
 .pip.today i{border-color:var(--gold)}
@@ -115,6 +143,7 @@ ol{margin:0;padding-left:20px}
 .sq{width:46px;height:46px;flex:none;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font:700 20px/1 var(--f-d);box-shadow:0 3px 0 var(--shadow)}
 .sq:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shadow)}
 .sq[disabled]{opacity:.35;cursor:default}
+.sq.sm{width:48px;font-size:12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;box-shadow:0 3px 0 var(--shadow);font-size:14px;min-height:44px}
 .chip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shadow)}
@@ -123,19 +152,25 @@ ol{margin:0;padding-left:20px}
 .grid5 .chip{padding:10px 0;text-align:center;font:600 16px var(--f-d)}
 .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .opts .chip{text-align:center;padding-inline:4px}
+.opts2{grid-template-columns:1fr 1fr}
 .opts5{grid-template-columns:repeat(5,1fr)}
 
 /* steppers */
 .tstep{display:flex;flex-direction:column;gap:6px;align-items:center;min-width:0}
 .tstep-r{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:4px;width:100%}
 .tstep .sq{width:36px;height:44px;font-size:18px}
-.tstep .tv{font-size:clamp(14px,4.3vw,20px);letter-spacing:-.02em;white-space:nowrap}
 .tv{text-align:center;font:700 24px/1 var(--f-d);font-variant-numeric:tabular-nums}
+.tstep .tv{font-size:clamp(14px,4.3vw,20px);letter-spacing:-.02em;white-space:nowrap}
 .nstep{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .nstep .nl{font-size:14px}
 .nstep .tstep-r{width:auto;grid-template-columns:46px 52px 46px;gap:6px}
+.nstep .sq{width:46px}
+.stime{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stime-r{display:grid;grid-template-columns:48px 48px minmax(0,1fr) 48px 48px;gap:6px;align-items:center;width:100%}
+.stime .tv{font-size:clamp(16px,5vw,22px)}
+.stime .tv.past{color:var(--gold)}
 
-/* quests + toggles */
+/* quests */
 .quest{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:0 3px 0 var(--shadow)}
 .quest:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shadow)}
 .chk{width:26px;height:26px;flex:none;border:2px solid var(--mute);border-radius:6px;position:relative}
@@ -144,29 +179,29 @@ ol{margin:0;padding-left:20px}
 .quest.done .chk::after{content:"";position:absolute;left:7px;top:2px;width:7px;height:13px;border:solid var(--bg);border-width:0 3px 3px 0;transform:rotate(45deg)}
 .quest.done .qt{color:var(--mute);text-decoration:line-through}
 .qt{flex:1;min-width:0}
+.qt b.st{display:block;font-weight:600}
+.qt .sd{display:block;font-size:13px;color:var(--mute);margin-top:2px}
+.badge-n{display:block;font-size:12px;color:var(--skin);margin-top:3px}
 .qxp{font:600 11px var(--f-d);color:var(--gold);white-space:nowrap}
 
-/* quick row */
+/* quick row, water */
 .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .qbtn{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 3px 0 var(--shadow)}
 .qbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--shadow)}
 .qbtn b{font:700 22px/1 var(--f-d);font-variant-numeric:tabular-nums}
 .qbtn span{font-size:12px;color:var(--mute)}
-.qbtn.w b{color:var(--rec)}.qbtn.s b{color:var(--fuel)}.qbtn.c b{color:var(--eng)}
-
-/* water */
+.qbtn.w b{color:var(--sleep)}.qbtn.s b{color:var(--body)}.qbtn.c b{color:var(--will)}
 .glasses{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
 .gl{height:30px;border:2px solid var(--line);border-top:0;border-radius:0 0 6px 6px;position:relative;overflow:hidden}
-.gl.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:78%;background:var(--rec);opacity:.85}
+.gl.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:78%;background:var(--sleep);opacity:.85}
 
 /* buffs */
 .buff{display:flex;gap:10px;align-items:flex-start}
 .buff i{flex:none;font:700 10px var(--f-d);padding:4px 7px;border-radius:5px;letter-spacing:.04em;text-transform:uppercase;font-style:normal;margin-top:1px}
 .buff.good i{background:#173a2a;color:var(--good)}
 .buff.bad i{background:#3a1d22;color:var(--bad)}
+.buff.gold i{background:#3a3117;color:var(--gold)}
 .buff p{font-size:14px;min-width:0}
-
-/* plan */
 .plan{display:flex;flex-direction:column;gap:6px;font-size:14px}
 .plan li::marker{color:var(--gold);font-weight:600}
 
@@ -177,16 +212,20 @@ ol{margin:0;padding-left:20px}
 .mile.done .chk::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--bg);border-width:0 2px 2px 0;transform:rotate(45deg)}
 .mile span.t{flex:1;min-width:0}
 .mile.done span.t{color:var(--mute)}
-.chap{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding-block:4px;border-top:1px solid var(--line)}
+.chap{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding-block:6px;border-top:1px solid var(--line)}
 .chap:first-child{border-top:0}
+.retro{display:grid;grid-template-columns:minmax(0,1.4fr) 1fr 1fr;gap:6px 10px;font-size:14px;align-items:baseline}
+.retro .h{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.retro b{font:600 15px var(--f-b);font-variant-numeric:tabular-nums}
+.up{color:var(--good);font-size:12px}.down{color:var(--bad);font-size:12px}
 .chart{width:100%;height:auto;display:block}
 .chart .grid{stroke:var(--line);stroke-width:1}
 .chart .ax{fill:var(--mute);font:9px var(--f-b)}
 .chart .ref{stroke:var(--gold);stroke-width:1.2;stroke-dasharray:4 3}
 .chart .ref-t{fill:var(--gold);font:600 9px var(--f-b)}
-.chart .b-good{fill:var(--rec)}
+.chart .b-good{fill:var(--sleep)}
 .chart .b-late{fill:#6b4b63}
-.chart .b-smoke{fill:var(--fuel)}
+.chart .b-smoke{fill:var(--body)}
 .chart .b-zero{fill:var(--good)}
 .chart .nil{fill:var(--track)}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute)}
@@ -200,31 +239,22 @@ ol{margin:0;padding-left:20px}
 /* smoke */
 .big{font:700 54px/1 var(--f-d);text-align:center;font-variant-numeric:tabular-nums}
 .big small{font-size:18px;color:var(--mute)}
-.clean{font:700 30px/1.1 var(--f-d);text-align:center;color:var(--eng);font-variant-numeric:tabular-nums}
+.clean{font:700 30px/1.1 var(--f-d);text-align:center;color:var(--will);font-variant-numeric:tabular-nums}
 .bar{height:9px;background:var(--track);border-radius:5px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--fuel)}
+.bar i{display:block;height:100%;background:var(--body)}
 .timer{font:700 56px/1 var(--f-d);text-align:center;color:var(--gold);font-variant-numeric:tabular-nums}
 .cd{font:700 34px/1.1 var(--f-d);color:var(--gold);font-variant-numeric:tabular-nums}
 .tr{display:grid;grid-template-columns:86px 1fr 24px;align-items:center;gap:8px;font-size:13px}
 .tr .bar{height:8px}
 .log{display:flex;flex-wrap:wrap;gap:6px}
-.stime{display:flex;flex-direction:column;gap:6px;align-items:center}
-.stime-r{display:grid;grid-template-columns:48px 48px minmax(0,1fr) 48px 48px;gap:6px;align-items:center;width:100%}
-.sq.sm{width:48px;font-size:12px}
-.stime .tv.past{color:var(--gold)}
+.log span{font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 .log .logx{font-size:13px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-height:36px}
 .log .logx b{color:var(--bad);margin-left:4px}
-.log span{font-size:12px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
 .dates{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:14px}
 .dates div{font:600 13px var(--f-d);text-align:center}
+.oath{border:1px dashed var(--will);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
 
-/* master */
-.say{display:flex;flex-direction:column;gap:4px}
-.say b{font:600 11px var(--f-d);letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
-.chat{display:flex;flex-direction:column;gap:8px}
-.msg{padding:10px 12px;border-radius:12px;font-size:14px;white-space:pre-wrap;max-width:92%;overflow-wrap:anywhere}
-.msg.me{align-self:flex-end;background:#2a2817;border:1px solid var(--gold-d)}
-.msg.ai{align-self:flex-start;background:var(--panel2);border:1px solid var(--line)}
+/* forms */
 .ask{display:flex;gap:8px}
 .ask .txt{flex:1;min-width:0}
 .txt{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px}
@@ -232,15 +262,7 @@ ol{margin:0;padding-left:20px}
 .fld .txt{min-width:0;max-width:100%;display:block}
 input[type=date].txt{-webkit-appearance:none;appearance:none;text-align:left;min-height:48px}
 input[type=date].txt::-webkit-date-and-time-value{text-align:left}
-
-/* master brief + twists */
-.panel.brief{border-color:var(--line);background:linear-gradient(135deg,#1a1f3a 0%,var(--panel) 60%)}
-.panel.brief p{font-size:15px}
-.panel.twist{border-color:var(--skin);background:linear-gradient(180deg,#22183a 0%,var(--panel) 75%)}
-.twist-tag{background:var(--skin);color:#1d0f2b}
-.qt b.st{display:block;font-weight:600}
-.qt .sd{display:block;font-size:13px;color:var(--mute);margin-top:2px}
-.badge-n{display:block;font-size:12px;color:var(--skin);margin-top:3px}
+select.txt{-webkit-appearance:none;appearance:none}
 
 /* tab bar, toast, modal */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
@@ -250,21 +272,23 @@ input[type=date].txt::-webkit-date-and-time-value{text-align:left}
 .tab[aria-current="page"]{color:var(--gold);background:var(--panel2)}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9;transform:translate(-50%,8px);max-width:calc(100% - 32px);background:#05080f;border:1px solid var(--gold);color:var(--ink);padding:10px 14px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:24px;background:rgba(3,5,12,.78)}
-.modal-card{position:relative;overflow:hidden;width:100%;max-width:340px;background:var(--panel);border:2px solid var(--gold);border-radius:16px;padding:28px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;animation:pop .35s ease-out}
+.modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:24px;background:rgba(3,5,12,.8)}
+.modal-card{position:relative;overflow:hidden;width:100%;max-width:340px;background:var(--panel);border:2px solid var(--gold);border-radius:16px;padding:26px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;animation:pop .35s ease-out}
 .modal-card .kicker{font:600 11px var(--f-d);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
-.modal-card b{font:700 26px/1.15 var(--f-d)}
-.modal-card p{color:var(--mute);font-size:14px}
+.modal-card b.mt{font:700 24px/1.15 var(--f-d)}
+.modal-card p{color:#cbd4e4;font-size:14px}
 .modal-card .btn{align-self:stretch;margin-top:6px}
+.modal-card .art{width:96px;height:96px}
+.modal-card .dots{display:flex;gap:6px}
+.modal-card .dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.modal-card .dots i.on{background:var(--gold)}
 .rays{position:absolute;inset:-60%;z-index:-1;background:repeating-conic-gradient(rgba(242,193,78,.10) 0 10deg,transparent 10deg 20deg);animation:spin 18s linear infinite}
 @keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.btn,.toast,.orb{transition:none}.modal-card,.rays{animation:none}}
+@media (prefers-reduced-motion:reduce){.btn,.toast,.xpbar i{transition:none}.modal-card,.rays,.aur,.boss-art.hit{animation:none}}
 </style>
 </head>
 <body>
-
-
 <div id="app"><div class="boot">Загружаю героя…</div></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <div id="modal" class="modal" hidden></div>
@@ -272,51 +296,55 @@ input[type=date].txt::-webkit-date-and-time-value{text-align:left}
 <script>
 (function(){
 'use strict';
-var db=null,sample=null;
 var LV_BASE=600,LV_STEP=150,START='2026-10-13',DAY_SHIFT=5*3600e3;
 var TRIG=['После еды','Дорога','Перерыв','Стресс','Скука','Другое'];
 var SWAP={'После еды':'Встать из-за стола сразу, стакан воды, жвачка или почистить зубы.','Дорога':'Айкос не класть в карман, занять руки, включить подкаст.','Перерыв':'Чай или короткая прогулка вместо курилки.','Стресс':'Дыхание: вдох на 4 счёта, выдох на 6, пять кругов, потом на воздух без стика.','Скука':'10 приседаний или написать кому-нибудь пару строк.','Тяга':'Таймер на 10 минут и стакан воды.','Другое':'Отложить на 10 минут и проверить, хочется ли ещё.'};
 var TIPS=['Стакан холодной воды маленькими глотками','Выйди пройтись на 3 минуты','10 приседаний прямо сейчас','Жвачка или леденец без сахара','Вдох на 4 счёта, выдох на 6, пять кругов','Напиши кому-нибудь пару строк','Умойся холодной водой'];
 var WT=['Турник','Брусья','Отжимания','Резинки','Бег','Ходьба','Уличный зал'];
 var POOL=['Телефон убран за 30 минут до сна','10 минут прогулки после обеда','Стакан воды вместо стика после еды','Собрать контейнер с обедом на завтра','Проветрить спальню перед сном','Без кофе и энергетиков после 16:00','Один перерыв на работе без стика','Рыба или яйца в одном из приёмов пищи','Растяжка 5 минут перед сном','Написать или позвонить близкому человеку','10 минут на улице при дневном свете','Убрать айкос и стики из поля зрения'];
-var DEFM={name:'asai',xday:'2026-10-19',baseline:10,packPrice:0,flags:{}};
+var DUO=['Ужин вдвоём без телефонов на столе','Прогулка вдвоём 20 минут после ужина','Приготовить ужин вместе: тебе рыба, ей мясо, одна духовка','Вечер без экранов после 22:30: разговор, настолка или книга','Спросить друг друга: что сегодня было лучшим?','Завтрак вместе, даже если всего 10 минут','Вместе собрать обеды на завтра','Выбрать новый рецепт на выходные вдвоём','Растяжка вдвоём 10 минут перед сном','Сказать ей одну конкретную вещь, за которую ты благодарен сегодня','Вместе составить список покупок на неделю'];
+var DEFM={name:'asai',xday:'2026-10-19',baseline:10,packPrice:0,flags:{},sky:'classic'};
 var MON=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 var WD=['вс','пн','вт','ср','чт','пт','сб'];
 var PHASE={morning:'Утро',day:'День',evening:'Вечер',wind:'Подготовка ко сну',night:'Ночь'};
-var ASKQ=[['Чем заменить стик прямо сейчас?',1],['Как уснуть сегодня до 23:30?',1],['Тренировка на 20 минут дома',1],['Ужин на двоих: мне рыба, ей мясо',1],['Что приготовить из: ',0]];
 var ICONS={
   now:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>',
-  day:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  log:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h9a4 4 0 0 1 4 4v12H10a4 4 0 0 1-4-4z"/><path d="M10 9h5M10 13h5"/></svg>',
   path:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4 2.5 4H5"/></svg>',
   smoke:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2.5-5 0 2 .8 3 2 3.2C11 8.5 11 5.5 12 3z"/></svg>',
-  master:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6l-5.4 2.9 1.2-6-4.5-4.2 6.1-.7z"/></svg>'
+  master:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-3 3-5 7-5s7 2 7 5v5c0 4-3 6-7 6s-7-2-7-6z"/><circle cx="9.5" cy="10.5" r="1.6"/><circle cx="14.5" cy="10.5" r="1.6"/><path d="M11 14l1 1.2 1-1.2"/></svg>'
 };
-var TABS=[['now','Сейчас'],['day','День'],['path','Путь'],['smoke','Дым'],['master','Мастер']];
+var TABS=[['now','Сейчас'],['log','Журнал'],['path','Путь'],['smoke','Дым'],['master','Мастер']];
 var BOSS=[
-  {key:'sleep',title:'Хранитель сна',need:[5,6,6],text:function(n){return 'Отбой не позже 23:30 в '+n+' из 7 ночей'},hit:function(d){return !!(d.morning&&d.bedRel<=330)}},
-  {key:'smoke',title:'Дымный змей',need:[4,5,7],text:function(n){return n+' закрытых дней без стиков из 7'},hit:function(d){return !!(d.closed&&!(d.sticks||[]).length)}},
-  {key:'iron',title:'Железный голем',need:[3,3,4],text:function(n){return n+' тренировки за неделю'},hit:function(d){return !!(d.workout&&d.workout.done)}},
-  {key:'water',title:'Страж источника',need:[5,6,7],text:function(n){return 'Вода от 8 стаканов в '+n+' днях из 7'},hit:function(d){return ((d.food&&d.food.water)||0)>=8}}
+  {key:'sleep',title:'Хранитель сна',need:[5,6,6],text:function(n){return 'Отбой не позже 23:30 в '+n+' из 7 ночей'},hit:function(d){return !!(d.morning&&d.bedRel<=330)},lore:'Он кормится твоими поздними отбоями и листанием ленты в полночь.'},
+  {key:'smoke',title:'Дымный змей',need:[4,5,7],text:function(n){return n+' чистых дней без стиков из 7'},hit:function(d){return !!(d.closed&&d.oath&&!(d.sticks||[]).length)},lore:'Обвивается вокруг перерывов и дороги. Каждый чистый день отрубает ему кольцо.'},
+  {key:'iron',title:'Железный голем',need:[3,3,4],text:function(n){return n+' тренировки за неделю'},hit:function(d){return !!(d.workout&&d.workout.done)},lore:'Неподвижный и тяжёлый. Его не победить словами, только повторами.'},
+  {key:'water',title:'Страж источника',need:[5,6,7],text:function(n){return 'Вода от 8 стаканов в '+n+' днях из 7'},hit:function(d){return ((d.food&&d.food.water)||0)>=8}, lore:'Охраняет колодец. Пропускает только тех, кто приходит каждый день.'}
 ];
 var CH=[
-  {t:'Пробуждение',d:'Разведка: узнать свой сон, силу и привычку.',m:[
+  {t:'Пробуждение',lore:'Ты просыпаешься в мире, где ночь длиннее дня, а дым застилает дорогу. Мастер-сова не выдаёт мечей. Сначала разведка: узнай свой сон, свою силу и врага в кармане.',outro:'Разведка окончена. Ты знаешь врага в лицо. Теперь его тропы можно перекрывать.',m:[
     ['m1','Записать первое утро',30,function(a){return a.mornings>=1}],
     ['m2','Пройти тест силы',50,function(a){return !!a.firstTest}],
     ['m3','Записывать стики 5 дней',50,function(a){return a.sticksDays>=5}]]},
-  {t:'Дым',d:'Х-день и первые чистые дни.',m:[
-    ['m4','Первый закрытый день без стиков',100,function(a){return a.smokeBest>=1}],
-    ['m5','3 дня без стиков подряд',150,function(a){return a.smokeBest>=3}],
-    ['m6','7 дней без стиков подряд',300,function(a){return a.smokeBest>=7}]]},
-  {t:'Кожа',d:'Врач, схема и регулярный уход.',m:[
+  {t:'Дым',lore:'У врага есть имя и расписание: после еды, в дороге, от скуки. В Х-день ты перекрываешь первую тропу. Срыв не конец главы, а начало камбэка.',outro:'Неделя без дыма. Змей ослаб, а у тебя появилось время, деньги и дыхание.',m:[
+    ['m4','Первый чистый день',100,function(a){return a.smokeBest>=1}],
+    ['m5','3 чистых дня подряд',150,function(a){return a.smokeBest>=3}],
+    ['m6','7 чистых дней подряд',300,function(a){return a.smokeBest>=7}]]},
+  {t:'Кожа',lore:'Доспех героя это его кожа. Её чинит лекарь, а твоё дело регулярность: утро, вечер, без пропусков.',outro:'Доспех в надёжных руках. Регулярность стала привычкой.',m:[
     ['m7','Записаться к дерматологу',100,function(a,f){return !!f.dermBooked},'dermBooked'],
     ['m8','Сходить на приём',100,function(a,f){return !!f.dermVisited},'dermVisited'],
     ['m9','14 вечеров с уходом',150,function(a){return a.careDays>=14}]]},
-  {t:'Железо',d:'Сила с турника, брусьев и резинок.',m:[
+  {t:'Железо',lore:'Турник во дворе помнит всех, кто сдался на третьем повторе. Ты будешь возвращаться к нему снова и снова.',outro:'Железо поддалось. Тело стало инструментом, а не обузой.',m:[
     ['m10','10 тренировок',150,function(a){return a.workouts>=10}],
     ['m11','+3 подтягивания к первому тесту',200,function(a){return !!(a.firstTest&&a.lastTest&&a.lastTest.pullups-a.firstTest.pullups>=3)}]]},
-  {t:'Ритм',d:'Сон и привычки как система.',m:[
+  {t:'Ритм',lore:'Последняя глава не про подвиг, а про ритм. Когда отбой в 23:30 перестаёт быть квестом, ты победил.',outro:'Ритм твой. Сезон пройден, но игра продолжается: боссы вернутся сильнее.',m:[
     ['m12','7 ночей подряд с отбоем до 23:30',200,function(a){return a.bedBest>=7}],
     ['m13','Серия 14 дней',300,function(a,f,s){return s.best>=14}]]}
+];
+var INTRO=[
+  ['Добро пожаловать','Ты asai. Твоя жизнь это игра','Сон, еда, тренировки, кожа и отказ от айкоса дают опыт, уровни и трофеи. Каждую неделю приходит новый босс.'],
+  ['Как играть','Экран «Сейчас» подскажет ход','Утром запиши сон. Днём вода и квесты. Вечером три тапа и «Закрыть день». Если день меняется, скажи Мастеру, и он перестроит квесты.'],
+  ['Главное правило','Честность выгоднее','Записанный срыв приносит опыт и запускает «Камбэк». Серия дней даёт Импульс до +30% ко всему опыту. Сорвёшь серию, и Импульс сгорит.']
 ];
 
 /* ---------- helpers ---------- */
@@ -345,814 +373,34 @@ function avg(a){return a.reduce(function(x,y){return x+y},0)/a.length}
 function hash(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return Math.abs(h)}
 function plural(n,a,b,c){var m=n%10,k=n%100;return m===1&&k!==11?a:(m>=2&&m<=4&&(k<12||k>14))?b:c}
 function fmt1(x){return x.toFixed(1).replace('.',',')}
+function fmtMult(m){return m.toFixed(2).replace(/0$/,'').replace('.',',')}
 function phase(m){if(m>=300&&m<660)return 'morning';if(m>=660&&m<1080)return 'day';if(m>=1080&&m<1260)return 'evening';if(m>=1260&&m<1410)return 'wind';return 'night'}
 function rank(l){return l<3?'Рекрут':l<6?'Странник':l<10?'Страж':l<15?'Ветеран':'Мастер'}
 function levelInfo(xp){var l=1,need=LV_BASE;while(xp>=need&&l<99){xp-=need;l++;need=LV_BASE+LV_STEP*(l-1)}return {lvl:l,into:xp,need:need}}
+function skey(t){var p=String(t).split(':').map(Number),m=p[0]*60+p[1];return m<300?m+1440:m}
+function mkey(m){return m<300?m+1440:m}
+function monday(d){return addDays(d,-((parse(d).getDay()+6)%7))}
 
-var S={days:{},meta:clone(DEFM),tab:'now',view:todayISO(),ready:false,local:false,ai:null,craving:null,dm:null,dirty:false,chat:[],asking:false,chatLive:'',seenLvl:null,seenM:null,lastToday:null,lastPhase:null};
-var pend={},queues={};
-(function(){var t=lsGet('asai.tab');if(t&&TABS.some(function(x){return x[0]===t}))S.tab=t})();
+var S={days:{},meta:clone(DEFM),tab:'now',view:todayISO(),ready:false,craving:null,dm:null,dirty:false,stickT:null,oath:null,sayMode:'event',seen:null,lastToday:null,lastPhase:null,hitAnim:null};
+(function(){var t=lsGet('asai.tab');if(t==='day')t='log';if(t&&TABS.some(function(x){return x[0]===t}))S.tab=t})();
 
 function dayQuests(date){
   var h=hash(date),pool=POOL.slice(),out=[],before=date<S.meta.xday,n=before?2:3;
   for(var i=0;i<n;i++)out.push(pool.splice((h+i*7)%pool.length,1)[0]);
-  if(before)out.push('Записывать каждый стик с временем и триггером');
+  if(before)out.push('Записывать каждый стик с временем и поводом');
   return out.map(function(t,i){return {id:'q'+(i+1),text:t,done:false}});
 }
+function duoFor(date,d){if(d&&d.duo&&d.duo.text)return d.duo;return {text:DUO[hash('duo'+date)%DUO.length],done:false}}
 function newDay(date){return {date:date,quests:dayQuests(date),sticks:[],cravings:0}}
-function ctxDate(){return (S.tab==='day'||S.tab==='master')?S.view:todayISO()}
+function ctxDate(){return (S.tab==='log'||S.tab==='master')?S.view:todayISO()}
 
-/* ---------- storage ---------- */
+/* ---------- storage + sync ---------- */
 function lsSave(){lsSet('asai.v1',JSON.stringify({days:S.days}))}
 var GH=null;try{GH=JSON.parse(lsGet('asai.gh'))}catch(e){}
 var DIRTY={},DVER={};try{DIRTY=JSON.parse(lsGet('asai.dirty'))||{}}catch(e){DIRTY={}}
-function saveDirty(){lsSet('asai.dirty',JSON.stringify(DIRTY));lsSet('asai.metaDirty',S.metaDirty?'1':'')}
-function persist(date,doc,old){markDirty(date,old||{},doc);lsSave();schedulePush()}
-function mutate(date,fn,silent,msg){
-  var x0=silent?0:compute().xp;
-  var old=S.days[date]||{},cur=S.days[date]?clone(S.days[date]):newDay(date);
-  fn(cur);
-  S.days[date]=cur;
-  persist(date,cur,old);
-  if(silent)return;
-  render();
-  var dx=compute().xp-x0,parts=[];
-  if(msg)parts.push(msg);
-  if(dx)parts.push((dx>0?'+':'')+dx+' XP');
-  if(parts.length)toast(parts.join(' · '));
-}
-function saveMeta(m){S.meta=m;lsSet('asai.meta',JSON.stringify(m));S.metaDirty=true;saveDirty();schedulePush();render()}
-
-/* ---------- game logic ---------- */
-function dayXP(d,key,meta){
-  var parts=[];
-  function add(l,v){if(v)parts.push([l,v])}
-  if(d.morning){
-    add('Утро записано',20);
-    var s=sleepMin(d);
-    if(s>=420)add('Сон от 7 часов',20);else if(s<360)add('Короткий сон',-10);
-    if(d.bedRel<=330)add('Отбой до 23:30',30);
-  }
-  var qs=d.quests||[],done=qs.filter(function(q){return q.done}).length;
-  add('Квесты '+done+'/'+qs.length,done*30);
-  if(d.workout&&d.workout.done)add('Тренировка',40);
-  var cr=Math.min(5,d.cravings||0);
-  add('Тяга пережита ×'+cr,cr*10);
-  var f=d.food||{},ml=f.meals||{};
-  if((f.water||0)>=8)add('Вода 8 стаканов',15);
-  if(ml.b&&ml.l&&ml.d)add('Три приёма пищи',10);
-  if(f.nomeat)add('Без красного мяса',10);
-  var sk=d.skin||{};
-  if(sk.am)add('Уход за кожей утром',10);
-  if(sk.pm)add('Уход за кожей вечером',10);
-  if(d.joy&&String(d.joy).trim().length>=3)add('Хорошее за день',10);
-  (d.side||[]).forEach(function(s){if(s.done)add('Испытание: '+s.title,clamp(Number(s.xp)||0,0,80))});
-  if(d.closed){
-    add('День закрыт',20);
-    var n=(d.sticks||[]).length,base=meta.baseline||10;
-    if(key>=meta.xday&&n===0)add('День без стиков',50);
-    else if(n>0&&n<base)add('Стиков меньше базы ('+n+' из '+base+')',20);
-  }
-  return {total:parts.reduce(function(a,p){return a+p[1]},0),parts:parts};
-}
-function bossWeek(w,today){
-  var tpl=BOSS[w%BOSS.length],cyc=Math.floor(w/BOSS.length),need=tpl.need[Math.min(cyc,tpl.need.length-1)];
-  var from=addDays(START,w*7),days=[],ok=0,open=0;
-  for(var i=0;i<7;i++){
-    var date=addDays(from,i),d=S.days[date],hit=!!(d&&tpl.hit(d)),st;
-    if(hit){st='ok';ok++}
-    else if(date>today){st='future';open++}
-    else if(date===today){st='today';open++}
-    else st='miss';
-    days.push({date:date,st:st});
-  }
-  return {w:w,key:tpl.key,title:tpl.title,text:tpl.text(need),need:need,xp:150+50*cyc,from:from,to:addDays(from,6),days:days,ok:ok,done:ok>=need,failed:ok+open<need};
-}
-function qualifies(d){return !!(d&&d.morning&&(d.quests||[]).filter(function(q){return q.done}).length>=2)}
-function calcStreak(today){
-  var keys=Object.keys(S.days).sort();
-  if(!keys.length)return {cur:0,best:0};
-  var best=0,run=0,d=keys[0],g=0;
-  while(d<=today&&g++<1500){
-    if(qualifies(S.days[d])){run++;best=Math.max(best,run)}
-    else if(d!==today)run=0;
-    d=addDays(d,1);
-  }
-  return {cur:run,best:best};
-}
-function aggregates(today){
-  var keys=Object.keys(S.days).sort(),meta=S.meta;
-  var a={mornings:0,sticksDays:0,workouts:0,careDays:0,firstTest:null,lastTest:null,tests:[],smokeRun:0,smokeBest:0,bedRun:0,bedBest:0};
-  keys.forEach(function(k){
-    var d=S.days[k],w=d.workout||{};
-    if(d.morning)a.mornings++;
-    if((d.sticks||[]).length)a.sticksDays++;
-    if(w.done)a.workouts++;
-    if(d.skin&&d.skin.pm)a.careDays++;
-    if((w.pullups||0)+(w.pushups||0)+(w.dips||0)>0){
-      var t={date:k,pullups:w.pullups||0,pushups:w.pushups||0,dips:w.dips||0};
-      if(!a.firstTest)a.firstTest=t;a.lastTest=t;a.tests.push(t);
-    }
-  });
-  if(keys.length){
-    var d=keys[0],g=0;
-    while(d<=today&&g++<1500){
-      var x=S.days[d];
-      if(x&&x.closed&&d>=meta.xday&&!(x.sticks||[]).length){a.smokeRun++;a.smokeBest=Math.max(a.smokeBest,a.smokeRun)}
-      else if(d!==today)a.smokeRun=0;
-      if(x&&x.morning&&x.bedRel<=330){a.bedRun++;a.bedBest=Math.max(a.bedBest,a.bedRun)}
-      else if(d!==today)a.bedRun=0;
-      d=addDays(d,1);
-    }
-  }
-  return a;
-}
-function lastStickAt(){
-  var keys=Object.keys(S.days).sort().reverse();
-  for(var i=0;i<keys.length;i++){
-    var s=S.days[keys[i]].sticks||[];
-    if(s.length){
-      var t=s[s.length-1].t.split(':').map(Number),d=parse(keys[i]);
-      d.setHours(t[0],t[1],0,0);
-      if(t[0]*60+t[1]<300)d.setDate(d.getDate()+1);
-      return d.getTime();
-    }
-  }
-  return null;
-}
-function cleanText(){var t=lastStickAt();if(!t)return 'Записей пока нет';var m=Math.max(0,Math.floor((Date.now()-t)/60000)),dd=Math.floor(m/1440);return (dd?dd+' д ':'')+durShort(m%1440)}
-function buffs(today,streak){
-  var out=[],t=S.days[today],y=S.days[addDays(today,-1)];
-  if(t&&t.morning){var s=sleepMin(t);if(s<390)out.push(['bad','Недосып','Сон '+durTxt(s)+'. Тяга и аппетит сегодня сильнее: держи воду рядом и не пропускай обед.'])}
-  var late=0;for(var i=0;i<3;i++){var x=S.days[addDays(today,-i)];if(x&&x.morning&&x.bedRel>390)late++}
-  if(late>=2)out.push(['bad','Сова','Отбой после 00:30 две ночи из трёх. Сегодня начни сворачиваться в 22:45.']);
-  if(y&&y.closed&&y.food&&(y.food.water||0)<4)out.push(['bad','Сухость','Вчера меньше 4 стаканов воды. Первый стакан сразу после подъёма.']);
-  if(y&&y.closed&&(y.sticks||[]).length>(S.meta.baseline||10))out.push(['bad','Дымовая завеса','Вчера стиков больше базы. Сегодня отложи первый стик на час.']);
-  var run=0;for(var j=0;j<10;j++){var z=S.days[addDays(today,-j)];if(z&&z.morning){if(z.bedRel<=330)run++;else break}else if(j>0)break}
-  if(run>=3)out.push(['good','Режим',run+' '+plural(run,'ночь','ночи','ночей')+' подряд с отбоем вовремя. Засыпать будет всё легче.']);
-  var wk=0;for(var k=1;k<=4;k++){var q=S.days[addDays(today,-k)];if(q&&q.workout&&q.workout.done)wk++}
-  if(wk>=2)out.push(['good','В тонусе',wk+' тренировки за 4 дня. Мышцы растут во время сна, ложись вовремя.']);
-  var ls=lastStickAt();
-  if(ls&&Date.now()-ls>=864e5)out.push(['good','Чистые лёгкие','Больше суток без стика. Продолжай.']);
-  if(streak.cur>=3)out.push(['good','Серия',streak.cur+' '+plural(streak.cur,'день','дня','дней')+' подряд засчитано.']);
-  return out;
-}
-function calcStats(today){
-  var ds=[];
-  for(var i=6;i>=0;i--){var d=S.days[addDays(today,-i)];if(d)ds.push(d)}
-  var r={rec:null,recD:'Запиши утро: когда лёг и встал',fuel:null,fuelD:'Отмечай воду, еду и белок',str:0,strD:'',en:null,enD:'Отмечай бодрость утром',skin:null,skinD:'Отмечай уход за кожей'};
-  var nights=ds.filter(function(d){return d.morning});
-  if(nights.length){
-    var dur=avg(nights.map(function(d){return Math.min(1,sleepMin(d)/480)}))*100;
-    var h=fmt1(avg(nights.map(sleepMin))/60);
-    if(nights.length>=2){
-      var m=avg(nights.map(function(d){return d.bedRel}));
-      var sd=Math.sqrt(avg(nights.map(function(d){return Math.pow(d.bedRel-m,2)})));
-      r.rec=Math.round(dur*0.6+clamp(100-sd/90*100,0,100)*0.4);
-      r.recD='Сон в среднем '+h+' ч · разброс отбоя ±'+Math.round(sd)+' мин';
-    }else{r.rec=Math.round(dur);r.recD='Сон '+h+' ч · регулярность видна со 2-й ночи'}
-  }
-  var fd=ds.filter(function(d){return d.food});
-  if(fd.length){
-    r.fuel=Math.round(avg(fd.map(function(d){var f=d.food,ml=f.meals||{};
-      return ((ml.b?1:0)+(ml.l?1:0)+(ml.d?1:0))/3*0.2+(f.protein!=null?f.protein/2:0)*0.25+Math.min(1,(f.veg||0)/3)*0.2+Math.min(1,(f.water||0)/8)*0.2+(f.kcal==='ok'?1:f.kcal?0.5:0)*0.15}))*100);
-    r.fuelD='Записей еды: '+fd.length+' из 7 · цель: белок, овощи 3, вода 8';
-  }
-  var wn=ds.filter(function(d){return d.workout&&d.workout.done}).length;
-  r.str=Math.round(Math.min(1,wn/3)*100);
-  r.strD='Тренировок за 7 дней: '+wn+' из 3';
-  var ms=ds.filter(function(d){return d.mood!=null}).map(function(d){return d.mood});
-  if(ms.length){
-    var st=ds.filter(function(d){return d.stress!=null}).map(function(d){return d.stress});
-    var ma=avg(ms),sa=st.length?avg(st):null;
-    r.en=Math.round(clamp(ma*10-(sa!=null?Math.max(0,sa-5)*4:0),0,100));
-    r.enD='Бодрость '+fmt1(ma)+' из 10'+(sa!=null?' · стресс '+fmt1(sa):'');
-  }
-  var sk=ds.filter(function(d){return d.skin});
-  if(sk.length){
-    var care=ds.reduce(function(a,d){var s=d.skin||{};return a+(s.am?1:0)+(s.pm?1:0)},0)/(ds.length*2);
-    var rated=sk.filter(function(d){return d.skin.state}).map(function(d){return d.skin.state});
-    var sa2=rated.length?avg(rated):null;
-    r.skin=Math.round((care*0.6+(sa2!=null?(sa2-1)/4:care)*0.4)*100);
-    r.skinD='Уход '+Math.round(care*100)+'% дней'+(sa2!=null?' · состояние '+fmt1(sa2)+' из 5':'');
-  }
-  return r;
-}
-function compute(){
-  var today=todayISO(),meta=S.meta,perDay={},xp=0;
-  Object.keys(S.days).forEach(function(k){var r=dayXP(S.days[k],k,meta);perDay[k]=r;xp+=r.total});
-  var cw=Math.max(0,Math.floor(diffDays(START,today)/7)),bosses=[];
-  for(var w=0;w<=cw;w++){var b=bossWeek(w,today);bosses.push(b);if(b.done)xp+=b.xp}
-  var streak=calcStreak(today),agg=aggregates(today),flags=meta.flags||{},miles=[];
-  CH.forEach(function(ch,ci){ch.m.forEach(function(m){var done=!!m[3](agg,flags,streak);miles.push({id:m[0],t:m[1],xp:m[2],done:done,flag:m[4]||null,ch:ci});if(done)xp+=m[2]})});
-  xp=Math.max(0,xp);
-  return {today:today,meta:meta,xp:xp,lv:levelInfo(xp),perDay:perDay,bosses:bosses,boss:bosses[bosses.length-1],next:bossWeek(cw+1,today),stats:calcStats(today),streak:streak,agg:agg,miles:miles,buffs:buffs(today,streak)};
-}
-function curChapter(C){
-  for(var i=0;i<CH.length;i++){if(C.miles.some(function(m){return m.ch===i&&!m.done}))return i}
-  return CH.length-1;
-}
-function planFor(date,a){
-  var od=S.days[date]&&S.days[date].plan;
-  if(od&&od.title&&Array.isArray(od.items))return {kind:od.kind||'custom',title:String(od.title),where:String(od.where||''),min:Number(od.min)||20,items:od.items.map(String).slice(0,8)};
-  var wd=parse(date).getDay(),t=a.lastTest;
-  if(wd===1||wd===5){
-    var it=['Разминка 5 мин: суставы, 20 прыжков, 10 приседаний'];
-    if(!t)it.push('Сначала тест: максимум подтягиваний, отжиманий и брусьев за один подход, запиши ниже');
-    var p=t?t.pullups:0,di=t?t.dips:0,pu=t?t.pushups:0;
-    it.push(p>=3?'Подтягивания 4×'+Math.max(2,Math.round(p*0.6)):'Негативные подтягивания 4×3, опускание 5 сек');
-    it.push(di>=3?'Брусья 4×'+Math.max(2,Math.round(di*0.6)):'Негативы на брусьях 3×4');
-    it.push('Отжимания 3×'+(pu>=5?Math.round(pu*0.6):8));
-    it.push('Вис на турнике 3×20–30 сек');
-    return {kind:'strength',title:'Сила · верх',where:'Уличный зал или турник с брусьями дома',min:40,items:it};
-  }
-  if(wd===3)return {kind:'strength',title:'Сила · ноги и спина',where:'Дома с резинками',min:35,items:['Разминка 5 мин','Приседания 4×20','Выпады 3×10 на ногу','Тяга резинки к поясу 4×15','Разведение резинки 3×15','Планка 3×40 сек']};
-  if(wd===2||wd===4)return {kind:'cardio',title:'Лёгкий бег',where:'Дорожка в сквере',min:25,items:['5 мин быстрой ходьбы','15–20 мин лёгкого бега: темп, в котором можно говорить фразами','5 мин ходьбы и растяжка']};
-  if(wd===6)return {kind:'free',title:'Свободный день',where:'Уличный зал или прогулка',min:45,items:['Прогулка 40–60 мин','или повтор «Сила · верх», если есть настроение']};
-  return {kind:'rest',title:'Отдых',where:'Дома',min:10,items:['Растяжка 10 мин','Прогулка без телефона']};
-}
-
-/* ---------- view pieces ---------- */
-function skyHTML(C){
-  var m=nowMin(),ph=phase(m),lv=C.lv,p,orb;
-  if(m>=300&&m<1260){p=(m-300)/960;orb='sun'}else{p=((m-1260+1440)%1440)/480;orb='moon'}
-  var x=8+p*84,y=46-Math.sin(Math.PI*p)*26;
-  return '<header class="sky '+ph+'"><span class="orb '+orb+'" style="left:'+x.toFixed(1)+'%;top:calc('+Math.round(y)+'px + env(safe-area-inset-top,0px))" aria-hidden="true"></span>'
-    +'<div class="hud-row"><div class="sigil" aria-hidden="true">'+esc((C.meta.name||'a').charAt(0).toUpperCase())+'</div>'
-    +'<div class="hud-id"><div class="hud-name">'+esc(C.meta.name)+'</div><div class="hud-rank">'+rank(lv.lvl)+' · глава «'+esc(CH[curChapter(C)].t)+'»</div></div>'
-    +'<div class="lvl"><span>ур.</span><b class="tn">'+lv.lvl+'</b></div></div>'
-    +'<div class="phase tn" data-live="phase">'+phaseText(m)+'</div>'
-    +'<div class="xpbar" role="progressbar" aria-label="Опыт до следующего уровня" aria-valuemin="0" aria-valuemax="'+lv.need+'" aria-valuenow="'+lv.into+'"><i style="width:'+(lv.into/lv.need*100).toFixed(1)+'%"></i></div>'
-    +'<div class="xp-meta tn"><span>'+lv.into+' / '+lv.need+' XP</span><span>всего '+C.xp+'</span></div></header>';
-}
-function phaseText(m){
-  var s=PHASE[phase(m)]+' · '+hhmm(m);
-  if(m>=1080&&m<1410)s+=' · до отбоя '+durShort(1410-m);
-  else if(phase(m)==='night')s+=' · отбой просрочен на '+durShort(m>=1410?m-1410:m+30);
-  return s;
-}
-function bedCd(m){return (m>=1080&&m<1410)?durShort(1410-m):'+'+durShort(m>=1410?m-1410:m+30)}
-function tabbar(){
-  return '<nav class="tabbar" aria-label="Разделы"><div class="tabbar-in">'+TABS.map(function(t){
-    return '<button class="tab" data-act="tab" data-v="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+ICONS[t[0]]+'<span>'+t[1]+'</span></button>';
-  }).join('')+'</div></nav>';
-}
-function localNote(){if(!GH)return '<p class="mute small">Синхронизация не настроена: записи только на этом телефоне. Настрой на вкладке «Мастер».</p>';if(SY.state==='err')return '<p class="small bad">Нет связи с GitHub. Записи сохранены на телефоне и отправятся позже.</p>';return ''}
-function seg(v,c){var n=v==null?0:Math.round(v/10),h='<div class="seg" style="--c:'+c+'">';for(var i=0;i<10;i++)h+='<i'+(i<n?' class="on"':'')+'></i>';return h+'</div>'}
-function statRow(n,v,d,c){return '<div class="stat"><div class="stat-h"><span class="stat-n">'+n+'</span><b class="stat-v">'+(v==null?'—':v)+'</b></div>'+seg(v,c)+'<div class="stat-d">'+esc(d)+'</div></div>'}
-function statsCard(s){
-  return '<section class="panel"><h2>Характеристики · 7 дней</h2>'+statRow('ВОССТАНОВЛЕНИЕ',s.rec,s.recD,'var(--rec)')+statRow('ТОПЛИВО',s.fuel,s.fuelD,'var(--fuel)')+statRow('СИЛА',s.str,s.strD,'var(--str)')+statRow('ЭНЕРГИЯ',s.en,s.enD,'var(--eng)')+statRow('КОЖА',s.skin,s.skinD,'var(--skin)')+'</section>';
-}
-function toggleRow(act,label,on,xp,v){
-  return '<button class="quest'+(on?' done':'')+'" data-act="'+act+'"'+(v?' data-v="'+v+'"':'')+' aria-pressed="'+!!on+'"><span class="chk"></span><span class="qt">'+esc(label)+'</span>'+(xp?'<span class="qxp">'+xp+'</span>':'')+'</button>';
-}
-function questsCard(d,title){
-  return '<section class="panel"><div class="split"><h2>'+title+'</h2><span class="qxp">по +30</span></div>'+(d.quests||[]).map(function(q,i){return toggleRow('quest',q.text,q.done,'',String(i))}).join('')+'</section>';
-}
-function bossCard(b,full){
-  if(!b)return '';
-  var h='<section class="panel"><div class="split"><h2>Босс недели · '+fmtShort(b.from)+'–'+fmtShort(b.to)+'</h2><span class="tag">+'+b.xp+' XP</span></div>'
-    +'<div class="title">'+esc(b.title)+'</div><p class="mute small">'+esc(b.text)+'</p><div class="pips">'
-    +b.days.map(function(x){return '<div class="pip '+x.st+'"><i></i><span>'+WD[parse(x.date).getDay()]+'</span></div>'}).join('')
-    +'</div><p class="small tn">'+b.ok+' из '+b.need+(b.done?' · <span class="good">босс побеждён</span>':(b.failed?' · <span class="bad">в этот раз не вышло</span>, разберём в ретроспективе':''))+'</p>';
-  return h+'</section>';
-}
-function draft(date){
-  if(!S.dm||S.dm.date!==date){
-    var d=S.days[date],last=null;
-    Object.keys(S.days).sort().reverse().some(function(k){if(k<date&&S.days[k].morning){last=S.days[k];return true}});
-    var src=d&&d.morning?d:last;
-    S.dm={date:date,bedRel:src?src.bedRel:360,wake:src?src.wake:460,mood:d&&d.mood!=null?d.mood:null};
-  }
-  return S.dm;
-}
-function timeStep(label,act,val){
-  return '<div class="tstep"><span class="lbl">'+label+'</span><div class="tstep-r"><button class="sq" data-act="'+act+'" data-d="-15" aria-label="'+label+' на 15 минут раньше">−</button><b class="tv">'+val+'</b><button class="sq" data-act="'+act+'" data-d="15" aria-label="'+label+' на 15 минут позже">+</button></div></div>';
-}
-function numStep(label,act,k,val){
-  return '<div class="nstep"><span class="nl">'+label+'</span><div class="tstep-r"><button class="sq" data-act="'+act+'" data-k="'+k+'" data-d="-1" aria-label="Меньше: '+label+'">−</button><b class="tv">'+val+'</b><button class="sq" data-act="'+act+'" data-k="'+k+'" data-d="1" aria-label="Больше: '+label+'">+</button></div></div>';
-}
-function opts(act,list,cur,cls){
-  return '<div class="opts'+(cls?' '+cls:'')+'">'+list.map(function(o){var on=String(cur)===String(o[0]);return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="'+act+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>';
-}
-function grid10(act,cur){
-  var h='<div class="grid5">';
-  for(var i=1;i<=10;i++)h+='<button class="chip'+(cur===i?' on':'')+'" aria-pressed="'+(cur===i)+'" data-act="'+act+'" data-v="'+i+'">'+i+'</button>';
-  return h+'</div>';
-}
-function morningForm(date,focus){
-  var d=S.days[date]||newDay(date),dm=draft(date),sm=((dm.wake-bedClock(dm.bedRel))+1440)%1440,late=dm.bedRel>330;
-  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Утро · как спал</h2>'+(d.morning?'<span class="qxp good">записано</span>':'<span class="qxp">до +70</span>')+'</div>'
-    +'<div class="row2">'+timeStep('Лёг','bed',hhmm(bedClock(dm.bedRel)))+timeStep('Встал','wake',hhmm(dm.wake))+'</div>'
-    +'<p class="line tn">Сон '+durTxt(sm)+' · '+(late?'<span class="bad">отбой позже 23:30</span>':'<span class="good">отбой до 23:30</span>')+'</p>'
-    +'<span class="lbl">Бодрость 1–10</span>'+grid10('mood',dm.mood)
-    +'<button class="btn" data-act="morning"'+(dm.mood==null?' disabled':'')+'>'+(d.morning?'Обновить утро':'Записать утро')+'</button>'
-    +(dm.mood==null?'<p class="mute small">Выбери бодрость, чтобы записать.</p>':'')+'</section>';
-}
-function planCard(date,a,d,focus){
-  var p=planFor(date,a),w=d.workout||{};
-  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Тренировка · '+WD[parse(date).getDay()]+'</h2><span class="tag">'+p.min+' мин</span></div>'
-    +'<div class="title">'+p.title+'</div><p class="mute small">'+p.where+'</p>'
-    +'<ol class="plan">'+p.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol>'
-    +(p.kind!=='rest'?'<p class="mute small">После тренировки сразу в душ: пот на спине лучше не оставлять на коже.</p>':'')
-    +toggleRow('wdone',p.kind==='rest'?'Растяжка и прогулка сделаны':'Тренировка сделана',w.done,'+40')+'</section>';
-}
-function glasses(n){var h='<div class="glasses" aria-hidden="true">';for(var i=0;i<8;i++)h+='<i class="gl'+(i<n?' on':'')+'"></i>';return h+'</div>'}
-function fuelCard(d,focus){
-  var f=d.food||{},w=f.water||0,ml=f.meals||{};
-  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Топливо</h2><span class="qxp">вода 8 = +15</span></div>'+glasses(w)
-    +'<div class="split"><b class="tv tn">'+w+' / 8</b><div class="split"><button class="sq" data-act="water" data-d="-1" aria-label="Убрать стакан">−</button><button class="btn small" data-act="water" data-d="1">+ стакан</button></div></div>'
-    +'<span class="lbl">Приёмы пищи</span><div class="chips">'+[['b','Завтрак'],['l','Обед'],['d','Ужин']].map(function(x){var on=!!ml[x[0]];return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="meal" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
-    +toggleRow('nomeat','День без красного мяса',f.nomeat,'+10')+'</section>';
-}
-function windCard(d,m){
-  var late=phase(m)==='night',sk=d.skin||{},qi=-1;
-  (d.quests||[]).forEach(function(q,i){if(qi<0&&/телефон/i.test(q.text))qi=i});
-  var h='<section class="panel focus"><h2>'+(late?'Отбой просрочен':'До отбоя 23:30')+'</h2><div class="cd tn" data-live="bedcd">'+bedCd(m)+'</div>'
-    +'<p class="mute small">'+(late?'Всё несделанное подождёт до завтра. Экран выключить, свет погасить.':'Экран убрать за 30 минут, свет приглушить, завтра будет легче.')+'</p>'
-    +toggleRow('skin','Уход за кожей вечером',sk.pm,'+10','pm');
-  if(qi>=0)h+=toggleRow('quest',d.quests[qi].text,d.quests[qi].done,'+30',String(qi));
-  h+=d.closed?'<p class="line good">День закрыт. Спокойной ночи.</p>':'<button class="btn" data-act="closeday">Закрыть день</button>';
-  return h+'</section>';
-}
-function briefCard(d){
-  if(!d.brief||!d.brief.text)return '';
-  var at=d.brief.at?new Date(d.brief.at):null;
-  return '<section class="panel brief"><div class="split"><h2>Мастер</h2>'+(at?'<span class="mute small tn">'+hhmm(at.getHours()*60+at.getMinutes())+'</span>':'')+'</div><p>'+esc(d.brief.text)+'</p></section>';
-}
-function sideCard(d){
-  var s=d.side||[];if(!s.length)return '';
-  return '<section class="panel twist"><div class="split"><h2>Сюжетный поворот</h2><span class="tag twist-tag">испытания</span></div>'+s.map(function(x,i){
-    return '<button class="quest'+(x.done?' done':'')+'" data-act="side" data-v="'+i+'" aria-pressed="'+!!x.done+'"><span class="chk"></span><span class="qt"><b class="st">'+esc(x.title)+'</b>'+(x.text?'<span class="sd">'+esc(x.text)+'</span>':'')+(x.badge?'<span class="badge-n">Трофей: '+esc(x.badge)+'</span>':'')+'</span><span class="qxp">+'+esc(x.xp)+'</span></button>';
-  }).join('')+'</section>';
-}
-function eventCard(d){
-  return '<section class="panel"><h2>Что меняется сегодня</h2>'
-    +((d.events||[]).length?'<div class="log">'+d.events.map(function(e){return '<span>'+esc(e.text)+(e.done?' · учтено':' · ждёт Мастера')+'</span>'}).join('')+'</div>':'<p class="mute small">Кино вечером, гости, задержка на работе, плохо спал. Напиши, и Мастер перестроит квесты и план и придумает испытания.</p>')
-    +'<div class="ask"><input id="ev-in" class="txt" maxlength="300" placeholder="Например: вечером кино на 3 часа" enterkeyhint="send"><button class="btn small" data-act="evsend"'+(S.evBusy?' disabled':'')+'>'+(S.evBusy?'Думаю…':'Учесть')+'</button></div></section>';
-}
-function buffsCard(list){
-  return '<section class="panel"><h2>Состояния</h2>'+list.map(function(b){return '<div class="buff '+b[0]+'"><i>'+esc(b[1])+'</i><p>'+esc(b[2])+'</p></div>'}).join('')+'</section>';
-}
-
-/* ---------- views ---------- */
-function viewNow(C){
-  var t=C.today,d=S.days[t]||newDay(t),m=nowMin(),ph=phase(m),h='<div class="stack">'+localNote();
-  var y=addDays(t,-1),yd=S.days[y];
-  if(yd&&!yd.closed&&(ph==='morning'||ph==='day'))h+='<section class="panel slim"><div class="split"><p class="small">Вчерашний день не закрыт</p><button class="btn small" data-act="closeday" data-date="'+y+'">Закрыть вчера</button></div></section>';
-  h+=briefCard(d);
-  if(!d.morning&&ph!=='wind'&&ph!=='night')h+=morningForm(t,true);
-  else if(ph==='wind'||ph==='night')h+=windCard(d,m);
-  else if(ph==='evening'&&!(d.workout&&d.workout.done))h+=planCard(t,C.agg,d,true);
-  else h+=fuelCard(d,true);
-  var f=d.food||{};
-  h+='<div class="quick"><button class="qbtn w" data-act="water" data-d="1"><b>'+(f.water||0)+'</b><span>+ стакан воды</span></button>'
-    +'<button class="qbtn s" data-act="tab" data-v="smoke"><b>'+(d.sticks||[]).length+'</b><span>записать стик</span></button>'
-    +'<button class="qbtn c" data-act="cravego"><b>10:00</b><span>пережить тягу</span></button></div>';
-  h+=sideCard(d);
-  h+=questsCard(d,'Квесты дня');
-  h+=eventCard(d);
-  if(C.buffs.length)h+=buffsCard(C.buffs);
-  h+=statsCard(C.stats);
-  h+=bossCard(C.boss);
-  if(ph==='evening'&&d.workout&&d.workout.done)h+='<p class="mute small" style="text-align:center">Тренировка сделана. Вечером на вкладке «День» отметь еду, кожу и радость дня.</p>';
-  return h+'</div>';
-}
-function dateNav(date,today){
-  return '<div class="dates"><button class="sq" data-act="prev" aria-label="Предыдущий день">‹</button><div>'+fmtDate(date)+(date===today?' · сегодня':'')+'</div><button class="sq" data-act="next"'+(date>=today?' disabled':'')+' aria-label="Следующий день">›</button></div>';
-}
-function viewDay(C){
-  var date=S.view,d=S.days[date]||newDay(date),w=d.workout||{},f=d.food||{},sk=d.skin||{};
-  var h=dateNav(date,C.today)+'<div class="stack">';
-  h+=morningForm(date,false);
-  h+=sideCard(d);
-  h+=questsCard(d,'Квесты');
-  h+=planCard(date,C.agg,d,false);
-  h+='<section class="panel"><h2>Журнал тренировки</h2><div class="chips">'+WT.map(function(t){var on=(w.types||[]).indexOf(t)>=0;return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="wtype" data-v="'+t+'">'+t+'</button>'}).join('')+'</div>'
-    +'<span class="lbl">Тест: максимум за один подход</span>'+numStep('Подтягивания','wnum','pullups',w.pullups||0)+numStep('Отжимания','wnum','pushups',w.pushups||0)+numStep('Брусья','wnum','dips',w.dips||0)
-    +'<p class="mute small">Заполняй в дни теста, раз в две недели. План подходов считается от последнего теста.</p></section>';
-  h+=fuelCard(d,false).replace('</section>','')
-    +'<span class="lbl">Белок</span>'+opts('protein',[[0,'Мало'],[1,'Норм'],[2,'Цель']],f.protein==null?'':f.protein)
-    +'<span class="lbl">Калории</span>'+opts('kcal',[['low','Мало'],['ok','В норме'],['high','Много']],f.kcal||'')
-    +numStep('Овощи, порции','fnum','veg',f.veg||0)+'</section>';
-  h+='<section class="panel"><h2>Кожа</h2>'+toggleRow('skin','Уход утром',sk.am,'+10','am')+toggleRow('skin','Уход вечером',sk.pm,'+10','pm')
-    +'<span class="lbl">Как кожа сегодня, 1–5</span>'+opts('skinstate',[[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']],sk.state||'','opts5')
-    +'<p class="mute small">1: много воспалений, 5: чисто. Уход по своей схеме, лечение подбирает дерматолог.</p></section>';
-  h+='<section class="panel"><h2>Вечер</h2><span class="lbl">Стресс за день 1–10</span>'+grid10('stress',d.stress==null?null:d.stress)
-    +'<label class="fld" for="joy"><span>Что сегодня было хорошего (+10 XP)</span><input id="joy" class="txt" data-save="joy" maxlength="200" value="'+esc(d.joy||'')+'" placeholder="Одна-две вещи, даже мелкие"></label></section>';
-  if(d.closed){var pd=C.perDay[date]||{total:0};h+='<section class="panel"><h2>День закрыт</h2><p class="line tn">Итог: '+pd.total+' XP. Разбор на вкладке «Мастер».</p><button class="link" data-act="reopen">Открыть день снова</button></section>'}
-  else h+='<button class="btn" data-act="closeday">Закрыть день</button>';
-  var pd2=C.perDay[date];
-  if(pd2&&pd2.parts.length)h+='<section class="panel"><h2>Начислено</h2><div class="hist">'+pd2.parts.map(function(p){return '<div><span>'+esc(p[0])+'</span><b class="tn '+(p[1]<0?'bad':'good')+'">'+(p[1]>0?'+':'')+p[1]+'</b></div>'}).join('')+'</div></section>';
-  return h+'</div>';
-}
-function barChart(vals,labels,o){
-  var W=320,H=132,pl=24,pr=8,pt=12,pb=20,n=vals.length,cw=(W-pl-pr)/n,max=o.max;
-  function y(v){return pt+(H-pt-pb)*(1-v/max)}
-  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.label)+'">';
-  o.ticks.forEach(function(t){s+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(t).toFixed(1)+'" y2="'+y(t).toFixed(1)+'"/><text class="ax" x="'+(pl-5)+'" y="'+(y(t)+3).toFixed(1)+'" text-anchor="end">'+t+'</text>'});
-  vals.forEach(function(v,i){
-    var x=pl+i*cw+cw*0.2,w=cw*0.6;
-    if(v==null)s+='<rect class="nil" x="'+x.toFixed(1)+'" y="'+(H-pb-2)+'" width="'+w.toFixed(1)+'" height="2"/>';
-    else{var hh=Math.max(2,(H-pb)-y(Math.min(v,max)));s+='<rect class="'+o.cls(v,i)+'" x="'+x.toFixed(1)+'" y="'+((H-pb)-hh).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+hh.toFixed(1)+'" rx="2"/>'}
-    s+='<text class="ax" x="'+(x+w/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle">'+labels[i]+'</text>';
-  });
-  if(o.ref!=null)s+='<line class="ref" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(o.ref).toFixed(1)+'" y2="'+y(o.ref).toFixed(1)+'"/><text class="ref-t" x="'+(W-pr)+'" y="'+(y(o.ref)-4).toFixed(1)+'" text-anchor="end">'+esc(o.refLabel)+'</text>';
-  return s+'</svg>';
-}
-function viewPath(C){
-  var ci=curChapter(C),ch=CH[ci],h='<div class="stack">';
-  var mine=C.miles.filter(function(m){return m.ch===ci});
-  h+='<section class="panel focus"><h2>Глава '+(ci+1)+' из '+CH.length+'</h2><div class="title">'+esc(ch.t)+'</div><p class="mute small">'+esc(ch.d)+'</p>'
-    +mine.map(function(m){
-      if(m.flag&&!m.done)return toggleRow('flag',m.t,false,'+'+m.xp,m.flag);
-      return '<div class="mile'+(m.done?' done':'')+'"><span class="chk"></span><span class="t">'+esc(m.t)+'</span><span class="qxp">+'+m.xp+'</span></div>';
-    }).join('')+'</section>';
-  h+='<section class="panel"><h2>Сюжет</h2>'+CH.map(function(c,i){var ms=C.miles.filter(function(m){return m.ch===i}),dn=ms.filter(function(m){return m.done}).length;
-    return '<div class="chap"><span>'+(i+1)+'. '+esc(c.t)+(i===ci?' · <span class="good">сейчас</span>':'')+'</span><span class="tn mute">'+dn+' / '+ms.length+'</span></div>'}).join('')+'</section>';
-  h+=bossCard(C.boss);
-  var past=C.bosses.slice(0,-1).reverse();
-  h+='<section class="panel"><h2>Боссы</h2><div class="hist"><div><span>Дальше: '+esc(C.next.title)+'</span><span class="mute">с '+fmtShort(C.next.from)+'</span></div>'
-    +past.map(function(b){return '<div><span>'+esc(b.title)+' · '+fmtShort(b.from)+'</span><b class="tn '+(b.done?'good':'bad')+'">'+b.ok+'/'+b.need+'</b></div>'}).join('')
-    +'</div><p class="mute small">Каждая новая неделя приносит нового босса. По второму кругу они сильнее.</p></section>';
-  var tro=[];Object.keys(S.days).sort().forEach(function(k){(S.days[k].side||[]).forEach(function(s){if(s.done&&s.badge)tro.push([k,s])})});
-  h+='<section class="panel"><h2>Трофеи</h2>'+(tro.length?'<div class="hist">'+tro.reverse().map(function(p){return '<div><span>'+esc(p[1].badge)+'</span><span class="mute">'+fmtShort(p[0])+'</span></div>'}).join('')+'</div>':'<p class="mute small">Трофеи дают испытания из «Сюжетного поворота». Напиши событие дня на вкладке «Сейчас».</p>')+'</section>';
-  var days=[],t=C.today;for(var i=13;i>=0;i--)days.push(addDays(t,-i));
-  var lab=days.map(function(x){return parse(x).getDate()});
-  var sl=days.map(function(x){var d=S.days[x];return d&&d.morning?Math.round(sleepMin(d)/6)/10:null});
-  h+='<section class="panel"><h2>Сон · 14 дней, часы</h2>'+barChart(sl,lab,{max:10,ticks:[0,5,10],ref:7,refLabel:'7 ч',label:'Сон по дням',cls:function(v,i){return S.days[days[i]].bedRel<=330?'b-good':'b-late'}})
-    +'<div class="legend"><span><i style="background:var(--rec)"></i>отбой до 23:30</span><span><i style="background:#6b4b63"></i>позже</span></div></section>';
-  var base=C.meta.baseline||10,st=days.map(function(x){var d=S.days[x];return d?(d.sticks||[]).length:null});
-  var mx=Math.max(base,Math.max.apply(null,st.map(function(v){return v||0})))+2;
-  h+='<section class="panel"><h2>Стики · 14 дней</h2>'+barChart(st,lab,{max:mx,ticks:[0,Math.round(mx/2),mx],ref:base,refLabel:'база '+base,label:'Стики по дням',cls:function(v){return v===0?'b-zero':'b-smoke'}})+'</section>';
-  var start=addDays(t,-(((parse(t).getDay()+6)%7)+28)),cells='',mxx=1;
-  Object.keys(C.perDay).forEach(function(k){mxx=Math.max(mxx,C.perDay[k].total)});
-  ['пн','вт','ср','чт','пт','сб','вс'].forEach(function(x){cells+='<b>'+x+'</b>'});
-  for(var j=0;j<35;j++){var dt=addDays(start,j),pd=C.perDay[dt],cls=(pd&&pd.total>0?'v':'')+(dt===t?' now':'');
-    cells+='<i class="'+cls+'"'+(pd&&pd.total>0?' style="--a:'+(0.2+0.8*pd.total/mxx).toFixed(2)+'"':'')+' title="'+fmtShort(dt)+(pd?': '+pd.total+' XP':'')+'"></i>'}
-  h+='<section class="panel"><h2>Карта опыта · 5 недель</h2><div class="heat">'+cells+'</div></section>';
-  if(C.agg.tests.length)h+='<section class="panel"><h2>Тесты силы</h2><div class="hist">'+C.agg.tests.slice(-6).reverse().map(function(x){return '<div><span>'+fmtShort(x.date)+'</span><span class="tn">подт. '+x.pullups+' · отж. '+x.pushups+' · брусья '+x.dips+'</span></div>'}).join('')+'</div></section>';
-  return h+'</div>';
-}
-function viewSmoke(C){
-  var t=C.today,d=S.days[t]||newDay(t),n=(d.sticks||[]).length,base=C.meta.baseline||10,xd=C.meta.xday,left=diffDays(t,xd);
-  var h='<div class="stack">'+localNote();
-  h+='<section class="panel focus"><h2>Без стика</h2><div class="clean" data-live="clean">'+cleanText()+'</div>'
-    +'<p class="mute small" style="text-align:center">'+(left>0?'Х-день '+fmtDate(xd)+', через '+left+' '+plural(left,'день','дня','дней')+'. Сейчас разведка: не запрещаем, а записываем.':left===0?'Сегодня Х-день. Каждый закрытый день без стиков +50 XP.':'Режим отказа. Каждый закрытый день без стиков +50 XP.')+'</p></section>';
-  h+='<section class="panel"><h2>Стики сегодня</h2><div class="big tn">'+n+' <small>/ '+base+'</small></div><div class="bar"><i style="width:'+Math.min(100,n/base*100)+'%"></i></div>';
-  var price=Number(C.meta.packPrice)||0;
-  if(price>0&&t>=xd){var saved=0,dt=xd,g=0;while(dt<=t&&g++<2000){var x=S.days[dt];if(x&&x.closed)saved+=Math.max(0,base-(x.sticks||[]).length)*price/20;dt=addDays(dt,1)}
-    h+='<p class="line">Сэкономлено с Х-дня: <b class="tn">'+Math.round(saved)+' ₽</b></p>'}
-  else if(!price)h+='<p class="mute small">Укажи цену пачки в настройках на вкладке «Мастер», и здесь появятся сэкономленные деньги.</p>';
-  h+='</section>';
-  var sm=S.stickT!=null?S.stickT:nowMin(),past=S.stickT!=null;
-  h+='<section class="panel"><h2>Закурил: какой был повод</h2>'
-    +'<div class="stime"><span class="lbl">Время</span><div class="stime-r"><button class="sq sm" data-act="stime" data-d="-60" aria-label="На час раньше">−1ч</button><button class="sq sm" data-act="stime" data-d="-15" aria-label="На 15 минут раньше">−15</button>'
-    +'<b class="tv tn'+(past?' past':'')+'">'+hhmm(sm)+'</b><button class="sq sm" data-act="stime" data-d="15"'+(past?'':' disabled')+' aria-label="На 15 минут позже">+15</button><button class="sq sm" data-act="stime" data-d="60"'+(past?'':' disabled')+' aria-label="На час позже">+1ч</button></div>'
-    +(past?'<button class="link" data-act="stimenow">Вернуть «сейчас»</button>':'<span class="mute small">сейчас · чтобы вписать прошлый стик, сдвинь время назад</span>')+'</div>'
-    +'<div class="chips">'+TRIG.map(function(x){return '<button class="chip" data-act="stick" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>';
-  if(n)h+='<span class="lbl">Записано сегодня · нажми, чтобы удалить</span><div class="log">'+d.sticks.map(function(s,i){return '<button class="logx tn" data-act="delstick" data-v="'+i+'" aria-label="Удалить '+esc(s.t)+'">'+esc(s.t)+' · '+esc(s.trig)+' <b>×</b></button>'}).join('')+'</div>';
-  h+='</section>';
-  var c=S.craving,rem=c?c.end-Date.now():0;
-  h+='<section class="panel"><h2>Тяга</h2>';
-  if(!c)h+='<p class="mute small">Захотелось? Подожди 10 минут. Тяга обычно уходит за 5–10 минут.</p><button class="btn" data-act="cstart">Жду 10 минут</button>';
-  else if(rem>0)h+='<div class="timer" id="crave-t">'+mmss(rem)+'</div><p class="line" style="text-align:center">'+esc(c.tip||TIPS[0])+'</p><button class="btn ghost small" data-act="ccancel">Отмена</button>';
-  else h+='<div class="timer">00:00</div><p class="line" style="text-align:center">Время вышло. Как прошло?</p><div class="row2"><button class="btn" data-act="cwin">Выдержал</button><button class="btn ghost" data-act="clost">Закурил</button></div>';
-  h+='</section>';
-  var cnt={};for(var i=0;i<7;i++){var z=S.days[addDays(t,-i)];if(z)(z.sticks||[]).forEach(function(s){cnt[s.trig]=(cnt[s.trig]||0)+1})}
-  var ks=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]}),mx=ks.length?cnt[ks[0]]:1;
-  h+='<section class="panel"><h2>Поводы · 7 дней</h2>';
-  if(ks.length)h+=ks.map(function(k){return '<div class="tr"><span>'+esc(k)+'</span><div class="bar"><i style="width:'+(cnt[k]/mx*100)+'%"></i></div><b class="tn">'+cnt[k]+'</b></div>'}).join('')+'<div class="say"><b>Замена для «'+esc(ks[0])+'»</b><p class="small">'+esc(SWAP[ks[0]]||SWAP['Другое'])+'</p></div>';
-  else h+='<p class="mute small">Пока нет данных. Нажимай повод сразу после стика.</p>';
-  return h+'</section></div>';
-}
-function aiCopy(code){
-  return {not_granted:'Страница не получила доступ к Claude. Разбор можно получить в чате.',sampling_disabled:'Claude недоступен для этого аккаунта.',rate_limited:'Слишком часто. Подожди немного и попробуй снова.',invalid_json:'Мастер ответил не по формату. Нажми ещё раз.',session_expired:'Нужно войти в аккаунт заново.',refused:'Мастер не стал отвечать на это. Переформулируй вопрос.'}[code]||'Мастер не ответил. Попробуй ещё раз.';
-}
-function viewMaster(C){
-  var date=S.view,d=S.days[date]||newDay(date),deb=d.debrief,debDate=date;
-  if(!deb)Object.keys(S.days).sort().reverse().some(function(k){if(k<=date&&S.days[k].debrief){deb=S.days[k].debrief;debDate=k;return true}});
-  var h=dateNav(date,C.today)+'<div class="stack">'+localNote();
-  if(S.ai&&S.ai.state==='loading')h+='<section class="panel"><h2>Мастер</h2><p class="line">Мастер читает отчёт…</p></section>';
-  else if(S.ai&&S.ai.state==='error')h+='<section class="panel"><h2>Мастер</h2><p class="line bad">'+esc(aiCopy(S.ai.code))+'</p></section>';
-  else if(S.ai&&S.ai.state==='off')h+='<section class="panel"><h2>Мастер</h2><p class="line">Здесь страница не может позвать Claude. Разбор получишь в чате.</p></section>';
-  if(deb){
-    h+='<section class="panel"><h2>Разбор · '+fmtDate(debDate)+'</h2><div class="say"><b>Главный провал</b><p>'+esc(deb.fail)+'</p></div><div class="say"><b>Действие на завтра</b><p>'+esc(deb.action)+'</p></div>'+(deb.note?'<div class="say"><b>Заметка</b><p>'+esc(deb.note)+'</p></div>':'')+'</section>';
-  }else if(!S.ai)h+='<section class="panel"><h2>Мастер</h2><p class="mute small">Разбора пока нет. Мастер пишет его утром за прошедший день: главный провал, действие на сегодня и квесты.</p></section>';
-  if(sample)h+='<button class="btn" data-act="master"'+(S.ai&&S.ai.state==='loading'?' disabled':'')+'>Разбор дня</button>';
-  if(!sample)h+='<section class="panel"><h2>Мастер</h2><p class="small">Разбор дня и квесты Мастер пишет сам каждое утро в 7:21. События из «Что меняется сегодня» он подхватывает в течение часа. Вопросы задавай в чате Claude.</p></section>';
-  else h+='<section class="panel"><h2>Спросить Мастера</h2><div class="chat">'+S.chat.map(function(m){return '<div class="msg '+(m.role==='user'?'me':'ai')+'">'+esc(m.content)+'</div>'}).join('')
-    +(S.asking?'<div class="msg ai" id="chat-live">'+(S.chatLive?esc(S.chatLive):'Мастер думает…')+'</div>':'')+'</div>'
-    +'<div class="chips">'+ASKQ.map(function(q){return '<button class="chip small" data-act="'+(q[1]?'askq':'askfill')+'" data-v="'+esc(q[0])+'"'+(S.asking?' disabled':'')+'>'+esc(q[0].replace(/:\s*$/,'…'))+'</button>'}).join('')+'</div>'
-    +'<div class="ask"><input id="ask-in" class="txt" maxlength="400" placeholder="Твой вопрос" enterkeyhint="send"><button class="btn small" data-act="asksend"'+(S.asking?' disabled':'')+'>Спросить</button></div>'
-    +'<p class="mute small">Отвечает Claude по твоим данным за неделю. Разговор не сохраняется.</p></section>';
-  h+='<section class="panel"><h2>Записка для чата</h2><label class="fld" for="note"><span>Что обсудить с Мастером в чате: кожа, меню, сон</span><input id="note" class="txt" data-save="note" maxlength="600" value="'+esc(d.note||'')+'"></label></section>';
-  var M=C.meta;
-  h+='<section class="panel"><h2>Настройки</h2>'
-    +'<label class="fld" for="set-name"><span>Имя героя</span><input id="set-name" class="txt" maxlength="20" value="'+esc(M.name)+'"></label>'
-    +'<label class="fld" for="set-xday"><span>Х-день отказа от стиков</span><input id="set-xday" type="date" class="txt" value="'+esc(M.xday)+'"></label>'
-    +'<label class="fld" for="set-base"><span>Стиков в день до отказа</span><input id="set-base" type="number" inputmode="numeric" min="1" max="60" class="txt" value="'+esc(M.baseline)+'"></label>'
-    +'<label class="fld" for="set-price"><span>Цена пачки на 20 стиков, ₽</span><input id="set-price" type="number" inputmode="numeric" min="0" class="txt" value="'+(M.packPrice?esc(M.packPrice):'')+'"></label>'
-    +'<button class="btn ghost" data-act="saveset">Сохранить</button></section>';
-  h+=syncCard();
-  return h+'</div>';
-}
-
-/* ---------- render ---------- */
-function render(){
-  var app=$('#app'),y=window.scrollY;
-  if(!S.ready){app.innerHTML='<div class="boot">Загружаю героя…</div>';return}
-  var C=compute();
-  S.lastPhase=phase(nowMin());
-  var v={now:viewNow,day:viewDay,path:viewPath,smoke:viewSmoke,master:viewMaster}[S.tab]||viewNow;
-  app.innerHTML=skyHTML(C)+'<main>'+v(C)+'</main>'+tabbar();
-  window.scrollTo(0,y);
-  celebrate(C);
-}
-function typing(){var a=document.activeElement;return !!(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))}
-function safeRender(){if(typing()){S.dirty=true;return}render()}
-var tt;
-function toast(m){var el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show')},2400)}
-function showModal(kicker,title,sub){
-  var el=$('#modal');
-  el.innerHTML='<div class="modal-card" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="rays" aria-hidden="true"></div><span class="kicker">'+esc(kicker)+'</span><b>'+esc(title)+'</b><p>'+esc(sub)+'</p><button class="btn" data-close="1">Дальше</button></div>';
-  el.hidden=false;
-}
-function celebrate(C){
-  var lv=C.lv.lvl,done=C.miles.filter(function(m){return m.done}).map(function(m){return m.id});
-  if(S.seenLvl==null){
-    S.seenLvl=Number(lsGet('asai.lvl'))||lv;
-    var sm=null;try{sm=JSON.parse(lsGet('asai.miles'))}catch(e){}
-    S.seenM=Array.isArray(sm)?sm:done.slice();
-    lsSet('asai.lvl',String(S.seenLvl));lsSet('asai.miles',JSON.stringify(S.seenM));
-  }
-  var shown=false;
-  if(lv>S.seenLvl){showModal('Новый уровень','Уровень '+lv,'Звание: '+rank(lv)+'. До следующего уровня '+C.lv.need+' XP.');shown=true}
-  if(lv!==S.seenLvl){S.seenLvl=lv;lsSet('asai.lvl',String(lv))}
-  var fresh=done.filter(function(id){return S.seenM.indexOf(id)<0});
-  if(fresh.length){
-    var m=C.miles.filter(function(x){return x.id===fresh[0]})[0];
-    if(!shown)showModal('Веха пройдена',m.t,'+'+m.xp+' XP · глава «'+CH[m.ch].t+'»');
-    S.seenM=S.seenM.concat(fresh);lsSet('asai.miles',JSON.stringify(S.seenM));
-  }
-}
-
-/* ---------- live clock ---------- */
-function live(){
-  var m=nowMin();
-  var els=document.querySelectorAll('[data-live]');
-  for(var i=0;i<els.length;i++){var el=els[i],k=el.getAttribute('data-live');el.textContent=k==='phase'?phaseText(m):k==='bedcd'?bedCd(m):k==='clean'?cleanText():el.textContent}
-}
-setInterval(function(){
-  if(!S.ready)return;
-  var t=todayISO(),ph=phase(nowMin());
-  if(t!==S.lastToday){if(S.view===S.lastToday){S.view=t;S.dm=null}S.lastToday=t;safeRender();return}
-  if(ph!==S.lastPhase){safeRender();return}
-  live();
-},20000);
-
-/* ---------- craving timer ---------- */
-var tmr=null;
-function tickStart(){
-  clearInterval(tmr);
-  tmr=setInterval(function(){
-    var left=S.craving?S.craving.end-Date.now():0;
-    if(left<=0){clearInterval(tmr);safeRender();toast('10 минут прошли')}
-    else{var el=document.getElementById('crave-t');if(el)el.textContent=mmss(left)}
-  },1000);
-}
-function startCraving(){S.craving={end:Date.now()+600000,tip:TIPS[Math.floor(Math.random()*TIPS.length)]};lsSet('asai.craving',JSON.stringify(S.craving));tickStart()}
-function restoreCraving(){var c=null;try{c=JSON.parse(lsGet('asai.craving'))}catch(e){}if(c&&c.end&&Date.now()-c.end<3600000){S.craving=c;if(c.end>Date.now())tickStart()}}
-function endCraving(){S.craving=null;lsSet('asai.craving','');clearInterval(tmr)}
-
-/* ---------- actions ---------- */
-function skey(t){var p=String(t).split(':').map(Number),m=p[0]*60+p[1];return m<300?m+1440:m}
-function mkey(m){return m<300?m+1440:m}
-function logStick(trig){
-  var now=new Date(),m=S.stickT!=null?S.stickT:now.getHours()*60+now.getMinutes(),t=hhmm(m);
-  mutate(todayISO(),function(d){d.sticks=d.sticks||[];d.sticks.push({t:t,trig:trig});d.sticks.sort(function(a,b){return skey(a.t)-skey(b.t)})},false,'Записано '+t+' · '+trig);
-}
-function food(d){d.food=d.food||{};return d.food}
-function act(a,el){
-  var v=el.dataset.v,dd=Number(el.dataset.d),k=el.dataset.k,date=el.dataset.date||ctxDate(),today=todayISO();
-  if(a==='tab'){S.tab=v;S.stickT=null;lsSet('asai.tab',v);if(v==='now')S.view=today;render();window.scrollTo(0,0)}
-  else if(a==='prev'){S.view=addDays(S.view,-1);S.dm=null;render()}
-  else if(a==='next'){if(S.view<today){S.view=addDays(S.view,1);S.dm=null;render()}}
-  else if(a==='bed'){var m=draft(date);m.bedRel=clamp(m.bedRel+dd,0,720);render()}
-  else if(a==='wake'){var w=draft(date);w.wake=(w.wake+dd+1440)%1440;render()}
-  else if(a==='mood'){draft(date).mood=Number(v);render()}
-  else if(a==='morning'){var m2=draft(date);if(m2.mood==null)return;mutate(date,function(d){d.morning=true;d.bedRel=m2.bedRel;d.wake=m2.wake;d.mood=m2.mood},false,'Утро записано')}
-  else if(a==='quest'){mutate(date,function(d){var q=d.quests[Number(v)];if(q)q.done=!q.done})}
-  else if(a==='wdone'){mutate(date,function(d){d.workout=d.workout||{types:[]};d.workout.done=!d.workout.done})}
-  else if(a==='wtype'){mutate(date,function(d){d.workout=d.workout||{types:[]};var ty=d.workout.types=d.workout.types||[],x=ty.indexOf(v);if(x>=0)ty.splice(x,1);else ty.push(v)})}
-  else if(a==='wnum'){mutate(date,function(d){d.workout=d.workout||{types:[]};d.workout[k]=clamp((d.workout[k]||0)+dd,0,200)})}
-  else if(a==='water'){mutate(date,function(d){var f=food(d);f.water=clamp((f.water||0)+dd,0,20)},false,dd>0?'Стакан воды':'')}
-  else if(a==='meal'){mutate(date,function(d){var f=food(d);f.meals=f.meals||{};f.meals[v]=!f.meals[v]})}
-  else if(a==='nomeat'){mutate(date,function(d){var f=food(d);f.nomeat=!f.nomeat})}
-  else if(a==='protein'){mutate(date,function(d){food(d).protein=Number(v)})}
-  else if(a==='kcal'){mutate(date,function(d){food(d).kcal=v})}
-  else if(a==='fnum'){mutate(date,function(d){var f=food(d);f[k]=clamp((f[k]||0)+dd,0,12)})}
-  else if(a==='skin'){mutate(date,function(d){d.skin=d.skin||{};d.skin[v]=!d.skin[v]})}
-  else if(a==='skinstate'){mutate(date,function(d){d.skin=d.skin||{};d.skin.state=Number(v)})}
-  else if(a==='stress'){mutate(date,function(d){d.stress=Number(v)})}
-  else if(a==='stick'){logStick(v)}
-  else if(a==='stime'){var nk=mkey(nowMin()),k=mkey(S.stickT!=null?S.stickT:nowMin())+dd;k=clamp(k,300,nk);S.stickT=k>=nk?null:k%1440;render()}
-  else if(a==='stimenow'){S.stickT=null;render()}
-  else if(a==='delstick'){var di=Number(v),ds=S.days[today]&&S.days[today].sticks&&S.days[today].sticks[di];if(!ds)return;mutate(today,function(d){d.sticks.splice(di,1)},false,'Удалено '+ds.t)}
-  else if(a==='unstick'){mutate(today,function(d){if(d.sticks&&d.sticks.length)d.sticks.pop()})}
-  else if(a==='cstart'){startCraving();render()}
-  else if(a==='cravego'){startCraving();S.tab='smoke';render();window.scrollTo(0,0)}
-  else if(a==='ccancel'){endCraving();render()}
-  else if(a==='cwin'){endCraving();mutate(today,function(d){d.cravings=(d.cravings||0)+1},false,'Выдержал')}
-  else if(a==='clost'){endCraving();logStick('Тяга')}
-  else if(a==='closeday'){mutate(date,function(d){d.closed=true;d.closedAt=Date.now()},true);if(sample){S.tab='master';S.view=date;window.scrollTo(0,0)}else render();runMaster(date)}
-  else if(a==='reopen'){mutate(date,function(d){d.closed=false})}
-  else if(a==='master'){runMaster(date)}
-  else if(a==='flag'){var nm=clone(S.meta);nm.flags=nm.flags||{};nm.flags[v]=true;saveMeta(nm)}
-  else if(a==='side'){
-    var si=Number(v),was=S.days[date]&&S.days[date].side&&S.days[date].side[si];
-    if(!was)return;
-    var becomes=!was.done;
-    mutate(date,function(d){d.side[si].done=!d.side[si].done});
-    if(becomes&&was.badge)showModal('Трофей получен',was.badge,'+'+was.xp+' XP · '+was.title);
-  }
-  else if(a==='evsend'){var ei=document.getElementById('ev-in');if(ei){var ev=ei.value;ei.value='';applyEvent(ev)}}
-  else if(a==='ghsave'){
-    var go=((document.getElementById('gh-owner')||{}).value||'').trim(),gr=((document.getElementById('gh-repo')||{}).value||'').trim(),gt=((document.getElementById('gh-token')||{}).value||'').trim();
-    if(!go||!gr){toast('Укажи логин и репозиторий');return}
-    if(!gt&&!(GH&&GH.token)){toast('Вставь токен');return}
-    GH={owner:go,repo:gr,token:gt||GH.token};lsSet('asai.gh',JSON.stringify(GH));
-    if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
-    toast('Сохранено, синхронизирую');pull();
-  }
-  else if(a==='ghsync'){push().then(pull)}
-  else if(a==='ghoff'){GH=null;try{localStorage.removeItem('asai.gh')}catch(e){}render()}
-  else if(a==='askq'){ask(v)}
-  else if(a==='askfill'){var inp=document.getElementById('ask-in');if(inp){inp.value=v;inp.focus()}}
-  else if(a==='asksend'){var i2=document.getElementById('ask-in');if(i2){var q=i2.value;i2.value='';ask(q)}}
-  else if(a==='saveset'){
-    var nm2=clone(S.meta),nv=(document.getElementById('set-name')||{}).value,xv=(document.getElementById('set-xday')||{}).value,bv=Number((document.getElementById('set-base')||{}).value),pv=Number((document.getElementById('set-price')||{}).value);
-    if(nv&&nv.trim())nm2.name=nv.trim().slice(0,20);
-    if(/^\d{4}-\d{2}-\d{2}$/.test(xv||''))nm2.xday=xv;
-    if(bv>=1&&bv<=60)nm2.baseline=Math.round(bv);
-    nm2.packPrice=pv>0?Math.round(pv):0;
-    if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
-    saveMeta(nm2);toast('Настройки сохранены');
-  }
-}
-
-/* ---------- Master (Claude) ---------- */
-var PROFILE='Игрок asai: мужчина, 22 года, 183 см, 67 кг. Цели: вылечить кожу (акне на спине, рубцы на лице; лечит дерматолог, ты ничего не назначаешь), больше энергии и хорошее самочувствие, бросить айкос, наладить сон, стать счастливее. Режим: работа по будням 9:00–18:00, дорога час в каждую сторону, цель по отбою 23:30, подъём около 7:40. Тренировки: турник и брусья дома, резинки, уличный зал и беговая дорожка в сквере рядом. Еда: готовит на двоих с девушкой, бюджет около 5000 ₽ в неделю, сам уходит от красного мяса к рыбе, девушка любит мясо; газовая плита, духовка, аэрогриль, миксер, морозилка, микроволновки нет.\n'
- +'Правила: говори прямо и коротко, без лекций и стыда. Не выдумывай цифры, опирайся на данные; если данных мало, так и скажи. Не ставь диагнозов и не назначай лечение. Не советуй голодание, сильный дефицит калорий или недосып ради тренировок. При тревожных симптомах (боль в груди, обмороки, резкая потеря веса, постоянное истощение) скажи идти к врачу.\n';
-function rowsFor(date,days){
-  var rows=[];
-  for(var i=days-1;i>=0;i--){
-    var k=addDays(date,-i),d=S.days[k];if(!d)continue;
-    var o={date:k,weekday:WD[parse(k).getDay()]};
-    if(d.morning){o.bedtime=hhmm(bedClock(d.bedRel));o.wake=hhmm(d.wake);o.sleepHours=Math.round(sleepMin(d)/6)/10;o.mood=d.mood}
-    o.quests=(d.quests||[]).map(function(q){return (q.done?'[x] ':'[ ] ')+q.text});
-    if(d.workout&&(d.workout.done||d.workout.pullups))o.workout={done:!!d.workout.done,types:d.workout.types||[],test:{pullups:d.workout.pullups||0,pushups:d.workout.pushups||0,dips:d.workout.dips||0}};
-    if(d.food){var f=d.food,ml=f.meals||{};o.food={protein:['мало','норм','цель'][f.protein]||null,kcal:f.kcal||null,veg:f.veg||0,water:f.water||0,meals:[ml.b?'завтрак':null,ml.l?'обед':null,ml.d?'ужин':null].filter(Boolean),noRedMeat:!!f.nomeat}}
-    if(d.skin)o.skin={am:!!d.skin.am,pm:!!d.skin.pm,state1to5:d.skin.state||null};
-    if(d.stress!=null)o.stress=d.stress;
-    var tc={};(d.sticks||[]).forEach(function(s){tc[s.trig]=(tc[s.trig]||0)+1});
-    o.sticks=(d.sticks||[]).length;if(o.sticks)o.triggers=tc;
-    o.cravingsResisted=d.cravings||0;
-    if(d.joy)o.goodThings=String(d.joy).slice(0,200);
-    if(d.events&&d.events.length)o.events=d.events.map(function(e){return e.text});
-    if(d.side&&d.side.length)o.challenges=d.side.map(function(s){return (s.done?'[x] ':'[ ] ')+s.title});
-    if(d.plan&&d.plan.title)o.customPlan=d.plan.title;
-    if(d.note)o.noteForMaster=String(d.note).slice(0,300);
-    o.dayClosed=!!d.closed;
-    rows.push(o);
-  }
-  return rows;
-}
-function gameState(C){
-  var b=C.boss;
-  return 'Характеристики за 7 дней (0–100, null если данных нет): восстановление '+C.stats.rec+', топливо '+C.stats.fuel+', сила '+C.stats.str+', энергия '+C.stats.en+', кожа '+C.stats.skin+'.\n'
-   +'Уровень '+C.lv.lvl+', серия '+C.streak.cur+' дн. Босс недели: '+b.title+' — '+b.text+', выполнено '+b.ok+' из '+b.need+'. Х-день отказа от стиков: '+C.meta.xday+', база '+C.meta.baseline+' стиков в день. Состояния: '+(C.buffs.map(function(x){return x[1]}).join(', ')||'нет')+'.\n';
-}
-function buildPrompt(date,C){
-  var tom=addDays(date,1);
-  return 'Ты — Мастер игры: личный health-наставник и повар в формате RPG.\n'+PROFILE
-   +'Данные игрока, от старых к новым (JSON): '+JSON.stringify(rowsFor(date,7))+'\n'+gameState(C)
-   +'План тренировки на завтра: '+JSON.stringify(planFor(tom,C.agg))+'.\nРазбираем день: '+date+'.\n\n'
-   +'Верни только JSON такого вида: {"fail":"...","action":"...","note":"...","quests":["...","...","..."]}\n'
-   +'fail: главный провал дня одной фразой; если провала нет, самое слабое место.\naction: одно конкретное действие на завтра.\nnote: одно-два предложения о том, что получилось и как идёт босс недели.\n'
-   +'quests: ровно 3 коротких квеста на '+tom+' ('+WD[parse(tom).getDay()]+'), до 110 символов каждый, под рабочий график. Игра уже отдельно награждает отбой, запись сна, тренировку, воду, уход за кожей и приёмы пищи, поэтому квесты должны быть про другое: подготовка ко сну, заготовки еды, триггеры стиков, дневной свет, общение, мелкие радости.';
-}
-async function runMaster(date){
-  if(!sample){toast('День закрыт. Разбор пришлёт Мастер');return}
-  if(S.ai&&S.ai.state==='loading')return;
-  S.ai={date:date,state:'loading'};render();
-  try{
-    var r=await sample.json(buildPrompt(date,compute()),{modelTier:'default'});
-    if(!r||typeof r.fail!=='string'||typeof r.action!=='string')throw {code:'invalid_json'};
-    var qs=Array.isArray(r.quests)?r.quests.filter(function(x){return typeof x==='string'&&x.trim()}).slice(0,3).map(function(x){return x.trim().slice(0,140)}):[];
-    S.ai=null;
-    mutate(date,function(d){d.debrief={fail:String(r.fail).slice(0,400),action:String(r.action).slice(0,400),note:typeof r.note==='string'?r.note.slice(0,500):'',at:Date.now()}},true);
-    var tom=addDays(date,1),td=S.days[tom];
-    if(qs.length&&!(td&&(td.quests||[]).some(function(q){return q.done})))mutate(tom,function(d){d.quests=qs.map(function(t,i){return {id:'q'+(i+1),text:t,done:false}})},true);
-    render();toast('Мастер оставил разбор и квесты');
-  }catch(e){S.ai={date:date,state:'error',code:(e&&e.code)||'upstream_error'};render()}
-}
-async function applyEvent(text){
-  text=String(text||'').trim();
-  if(!text||S.evBusy)return;
-  var t=todayISO();
-  mutate(t,function(d){d.events=(d.events||[]).concat([{text:text.slice(0,300),at:Date.now()}]).slice(-6)},true);
-  if(!sample){render();toast('Записано. Мастер перестроит день в течение часа');return}
-  S.evBusy=true;render();
-  var C=compute(),m=nowMin();
-  var prompt='Ты — Мастер игры: health-наставник и повар игрока в формате RPG. Ты придумываешь живые, конкретные и выполнимые испытания.\n'+PROFILE
-    +'Данные за последние дни (JSON): '+JSON.stringify(rowsFor(t,3))+'\n'+gameState(C)
-    +'Сейчас '+hhmm(m)+', '+fmtDate(t)+'. Текущий план тренировки на сегодня: '+JSON.stringify(planFor(t,C.agg))+'.\n'
-    +'Игрок сообщил новое условие дня: «'+text+'».\n'
-    +'Перестрой остаток дня под это условие. Верни только JSON: {"note":"...","quests":["...","...","..."],"side":[{"title":"...","text":"...","xp":40,"badge":"..."}],"plan":null}\n'
-    +'note: 1–2 фразы, как Мастер видит этот день. quests: 3 обычных квеста на остаток дня с учётом условия, до 110 символов. '
-    +'side: 1–2 испытания, привязанных именно к этому событию, с игровым названием, xp от 20 до 80, badge — короткое имя трофея или пустая строка. '
-    +'plan: если условие ломает тренировку, верни {"title":"...","where":"...","min":15,"items":["..."]} с заменой, иначе null. '
-    +'Не награждай отдельно то, что игра уже награждает: отбой, сон, тренировку, воду, уход за кожей, приёмы пищи.';
-  try{
-    var r=await sample.json(prompt,{modelTier:'default'});
-    if(!r||typeof r!=='object')throw {code:'invalid_json'};
-    mutate(t,function(d){
-      var keep=(d.quests||[]).filter(function(q){return q.done});
-      var nq=(Array.isArray(r.quests)?r.quests:[]).filter(function(x){return typeof x==='string'&&x.trim()}).map(function(x){return x.trim().slice(0,140)});
-      if(nq.length)d.quests=keep.concat(nq.slice(0,Math.max(0,3-keep.length))).map(function(q,i){return typeof q==='string'?{id:'q'+(i+1),text:q,done:false}:Object.assign({},q,{id:'q'+(i+1)})});
-      var ns=(Array.isArray(r.side)?r.side:[]).filter(function(s){return s&&typeof s.title==='string'&&s.title.trim()}).slice(0,2).map(function(s){return {title:s.title.trim().slice(0,80),text:String(s.text||'').slice(0,200),xp:clamp(Math.round(Number(s.xp)||30),10,80),badge:String(s.badge||'').slice(0,40),done:false}});
-      d.side=(d.side||[]).concat(ns).slice(-4);
-      if(r.plan&&typeof r.plan==='object'&&r.plan.title&&Array.isArray(r.plan.items))d.plan={kind:'custom',title:String(r.plan.title).slice(0,60),where:String(r.plan.where||'').slice(0,80),min:clamp(Math.round(Number(r.plan.min)||20),5,120),items:r.plan.items.map(String).slice(0,8)};
-      if(typeof r.note==='string'&&r.note.trim())d.brief={text:r.note.slice(0,400),at:Date.now(),src:'event'};
-    },true);
-    toast('Мастер перестроил день');
-  }catch(e){toast(aiCopy(e&&e.code))}
-  S.evBusy=false;render();
-}
-async function ask(q){
-  q=String(q||'').trim();
-  if(!q||S.asking)return;
-  if(!sample){toast('Здесь Мастер недоступен, спроси в чате');return}
-  S.chat.push({role:'user',content:q});
-  S.chat=S.chat.slice(-8);
-  S.asking=true;S.chatLive='';render();
-  var C=compute(),t=C.today;
-  var rules='Ты — Мастер игры: health-наставник и повар игрока в формате RPG.\n'+PROFILE
-    +'Данные за 7 дней (JSON): '+JSON.stringify(rowsFor(t,7))+'\n'+gameState(C)
-    +'Сейчас '+hhmm(nowMin())+', '+PHASE[phase(nowMin())].toLowerCase()+'. План тренировки на сегодня: '+JSON.stringify(planFor(t,C.agg))+'.\n'
-    +'Отвечай по-русски, коротко: до 120 слов, по делу, шаги списком. Про еду: рыба для игрока, мясо можно для девушки, бюджет и оборудование учитывай, граммовки давай примерные.';
-  var turns=[{role:'user',content:rules}].concat(S.chat.filter(function(m){return !m.err}));
-  try{
-    var r=await sample(turns,{cache:false,onText:function(u){S.chatLive=u.text;var el=document.getElementById('chat-live');if(el)el.textContent=u.text}});
-    S.chat.push({role:'assistant',content:r.text});
-  }catch(e){
-    if(e&&e.text)S.chat.push({role:'assistant',content:e.text});
-    else S.chat.push({role:'assistant',content:aiCopy(e&&e.code),err:true});
-  }
-  S.asking=false;S.chatLive='';render();
-}
-
-/* ---------- events ---------- */
-var app=$('#app');
-app.addEventListener('click',function(e){
-  var b=e.target.closest('[data-act]');
-  if(!b||b.disabled)return;
-  act(b.dataset.act,b);
-});
-$('#modal').addEventListener('click',function(e){if(e.target.closest('[data-close]')||e.target.id==='modal')$('#modal').hidden=true});
-var saveT=null;
-function saveField(el){
-  var f=el.getAttribute('data-save'),val=el.value,date=ctxDate();
-  var cur=S.days[date]&&S.days[date][f];
-  if((cur||'')===val)return;
-  mutate(date,function(d){d[f]=val},true);
-}
-app.addEventListener('input',function(e){
-  var el=e.target;if(!el.getAttribute||!el.getAttribute('data-save'))return;
-  clearTimeout(saveT);saveT=setTimeout(function(){saveField(el)},700);
-});
-app.addEventListener('focusout',function(e){
-  var el=e.target;
-  if(el.getAttribute&&el.getAttribute('data-save')){clearTimeout(saveT);saveField(el)}
-  if(S.dirty){S.dirty=false;setTimeout(function(){if(!typing())render()},250)}
-});
-app.addEventListener('keydown',function(e){
-  if(e.key==='Enter'&&e.target.id==='ask-in'){e.preventDefault();var q=e.target.value;e.target.value='';ask(q)}
-  else if(e.key==='Enter'&&e.target.id==='ev-in'){e.preventDefault();var ev=e.target.value;e.target.value='';applyEvent(ev)}
-  else if(e.key==='Enter'&&e.target.getAttribute&&e.target.getAttribute('data-save')){e.target.blur()}
-});
-document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'&&S.ready){
-    var t=todayISO();
-    if(S.lastToday&&S.lastToday!==t){if(S.view===S.lastToday){S.view=t;S.dm=null}S.lastToday=t}
-    safeRender();
-  }
-});
-
-/* ---------- sync (GitHub) ---------- */
-var SY={state:'idle',last:null,err:null,busy:false,pushT:null};
 S.metaDirty=lsGet('asai.metaDirty')==='1';
+function saveDirty(){lsSet('asai.dirty',JSON.stringify(DIRTY));lsSet('asai.metaDirty',S.metaDirty?'1':'')}
+var SY={state:'idle',last:null,err:null,busy:false,pushT:null};
 function hasDirty(){return S.metaDirty||Object.keys(DIRTY).length>0}
 function markDirty(date,old,cur){
   var ks={};Object.keys(old).concat(Object.keys(cur)).forEach(function(k){if(JSON.stringify(old[k])!==JSON.stringify(cur[k]))ks[k]=1});
@@ -1160,6 +408,22 @@ function markDirty(date,old,cur){
   var ex=DIRTY[date]||[];add.forEach(function(k){if(ex.indexOf(k)<0)ex.push(k)});
   DIRTY[date]=ex;DVER[date]=(DVER[date]||0)+1;saveDirty();
 }
+function persist(date,doc,old){markDirty(date,old||{},doc);lsSave();schedulePush()}
+function mutate(date,fn,silent,msg){
+  var before=silent?null:compute();
+  var old=S.days[date]||{},cur=S.days[date]?clone(S.days[date]):newDay(date);
+  fn(cur);
+  S.days[date]=cur;
+  persist(date,cur,old);
+  if(silent)return;
+  render();
+  var after=compute(),dx=after.xp-before.xp,parts=[],bt=before.boss,at=after.boss;
+  if(msg)parts.push(msg);
+  if(dx)parts.push((dx>0?'+':'')+dx+' XP');
+  if(bt&&at&&at.w===bt.w&&at.ok>bt.ok&&!at.done){S.hitAnim=Date.now();parts.push('удар по боссу, осталось '+(at.need-at.ok));render()}
+  if(parts.length)toast(parts.join(' · '));
+}
+function saveMeta(m){S.meta=m;lsSet('asai.meta',JSON.stringify(m));S.metaDirty=true;saveDirty();schedulePush();render()}
 function b64e(s){return btoa(unescape(encodeURIComponent(s)))}
 function b64d(s){return decodeURIComponent(escape(atob(String(s).replace(/\s/g,''))))}
 function ghUrl(p){return 'https://api.github.com/repos/'+encodeURIComponent(GH.owner)+'/'+encodeURIComponent(GH.repo)+'/contents/'+p}
@@ -1181,14 +445,15 @@ async function ghPut(p,data,sha,msg){
 function monthOf(d){return d.slice(0,7)}
 function mergeDay(remote,local,keys){var o=Object.assign({},remote||{});keys.forEach(function(k){if(local&&Object.prototype.hasOwnProperty.call(local,k))o[k]=local[k];else delete o[k]});return o}
 function setSync(st,e){SY.state=st;SY.err=e?String(e.message||e):null;if(st==='ok')SY.last=Date.now();if(S.ready&&S.tab==='master')safeRender()}
+function applyMeta(m){m=clone(m);delete m.boss;S.meta=Object.assign(clone(DEFM),m);S.meta.flags=Object.assign({},m.flags||{})}
 async function pull(){
   if(!GH||SY.busy)return;
   SY.busy=true;setSync('sync');
   try{
-    var t=todayISO(),prevM=monthOf(addDays(t.slice(0,8)+'01',-1)),months=[prevM,monthOf(t)];
+    var t=todayISO(),months=[monthOf(addDays(t.slice(0,8)+'01',-1)),monthOf(t)];
     Object.keys(DIRTY).forEach(function(d){if(months.indexOf(monthOf(d))<0)months.push(monthOf(d))});
     var mr=await ghGet('meta.json');
-    if(mr.data&&!S.metaDirty){var m=clone(mr.data);delete m.boss;S.meta=Object.assign(clone(DEFM),m);S.meta.flags=Object.assign({},m.flags||{});lsSet('asai.meta',JSON.stringify(S.meta))}
+    if(mr.data&&!S.metaDirty){applyMeta(mr.data);lsSet('asai.meta',JSON.stringify(S.meta))}
     for(var i=0;i<months.length;i++){
       var r=await ghGet('days/'+months[i]+'.json');
       if(r.data)Object.keys(r.data).forEach(function(k){var ks=DIRTY[k];S.days[k]=ks&&ks.length?mergeDay(r.data[k],S.days[k],ks):r.data[k]});
@@ -1225,25 +490,683 @@ async function push(){
   if(hasDirty())schedulePush(1500);
 }
 function schedulePush(ms){if(!GH)return;clearTimeout(SY.pushT);SY.pushT=setTimeout(function(){push()},ms==null?1500:ms)}
-function syncCard(){
+
+/* ---------- game logic ---------- */
+function comeback(d,key,today){
+  var st=(d.sticks||[]).slice().sort(function(a,b){return skey(a.t)-skey(b.t)});
+  if(!st.length)return null;
+  var k1=skey(st[0].t),until=k1+180;
+  if(st.length>1&&skey(st[1].t)<=until)return {state:'fail',from:st[0].t,until:hhmm(until)};
+  if(key<today||mkey(nowMin())>=until)return {state:'ok',from:st[0].t,until:hhmm(until)};
+  return {state:'active',from:st[0].t,until:hhmm(until),left:until-mkey(nowMin())};
+}
+function dayXP(d,key,meta,mult,today){
+  var pos=[],neg=[];
+  function add(l,v){if(!v)return;(v>0?pos:neg).push([l,v])}
+  if(d.morning){add('Утро записано',20);var s=sleepMin(d);if(s>=420)add('Сон от 7 часов',20);else if(s<360)add('Короткий сон',-10);if(d.bedRel<=330)add('Отбой до 23:30',30)}
+  var qs=d.quests||[],qd=qs.filter(function(q){return q.done}).length;
+  add('Квесты '+qd+'/'+qs.length,qd*30);
+  (d.side||[]).forEach(function(s){if(s.done)add('Испытание: '+s.title,clamp(Number(s.xp)||0,0,80))});
+  if(d.duo&&d.duo.done)add('Квест на двоих',40);
+  if(d.workout&&d.workout.done)add('Тренировка',40);
+  var cr=Math.min(5,d.cravings||0);add('Тяга пережита ×'+cr,cr*10);
+  var f=d.food||{},ml=f.meals||{},sk=d.skin||{};
+  if((f.water||0)>=8)add('Вода 8 стаканов',15);
+  if(ml.b&&ml.l&&ml.d)add('Три приёма пищи',10);
+  if(f.nomeat)add('Без красного мяса',10);
+  if(f.ok===2)add('Ел нормально',10);
+  if(sk.am)add('Уход за кожей утром',10);
+  if(sk.pm)add('Уход за кожей вечером',10);
+  if(d.joy&&String(d.joy).trim().length>=3)add('Хорошее за день',10);
+  if(f.ok!=null&&sk.state&&d.stress!=null)add('Вечерний чек',15);
+  var n=(d.sticks||[]).length,base=meta.baseline||10,after=key>=meta.xday;
+  if(n){
+    if(after){add('Честная запись срыва',5);var cb=comeback(d,key,today);if(cb&&cb.state==='ok')add('Камбэк: 3 часа без стика',20)}
+    else add('Честный учёт ×'+Math.min(n,5),Math.min(n,5)*2);
+  }
+  if(d.closed){
+    add('День закрыт',20);
+    if(after&&n===0&&d.oath)add('Чистый день',50);
+    else if(!after&&n>0&&n<base)add('Стиков меньше базы ('+n+' из '+base+')',20);
+  }
+  var p=pos.reduce(function(a,x){return a+x[1]},0),extra=Math.round(p*((mult||1)-1));
+  if(extra>0)pos.push(['Импульс ×'+fmtMult(mult),extra]);
+  var parts=pos.concat(neg);
+  return {total:parts.reduce(function(a,x){return a+x[1]},0),parts:parts};
+}
+function bossWeek(w,today){
+  var tpl=BOSS[w%BOSS.length],cyc=Math.floor(w/BOSS.length),need=tpl.need[Math.min(cyc,tpl.need.length-1)];
+  var from=addDays(START,w*7),days=[],ok=0,open=0;
+  for(var i=0;i<7;i++){
+    var date=addDays(from,i),d=S.days[date],hit=!!(d&&tpl.hit(d)),st;
+    if(hit){st='ok';ok++}
+    else if(date>today){st='future';open++}
+    else if(date===today){st='today';open++}
+    else st='miss';
+    days.push({date:date,st:st});
+  }
+  return {w:w,key:tpl.key,title:tpl.title,lore:tpl.lore,text:tpl.text(need),need:need,xp:150+50*cyc,cyc:cyc,from:from,to:addDays(from,6),days:days,ok:Math.min(ok,need),done:ok>=need,failed:ok+open<need,started:today>=from};
+}
+function qualifies(d){return !!(d&&d.morning&&(d.quests||[]).filter(function(q){return q.done}).length>=2)}
+function aggregates(today){
+  var keys=Object.keys(S.days).sort(),meta=S.meta;
+  var a={mornings:0,sticksDays:0,workouts:0,careDays:0,firstTest:null,lastTest:null,tests:[],smokeRun:0,smokeBest:0,bedRun:0,bedBest:0,dataDays:0};
+  keys.forEach(function(k){
+    if(k>today)return;
+    var d=S.days[k],w=d.workout||{};
+    if(d.morning||d.closed||(d.sticks||[]).length)a.dataDays++;
+    if(d.morning)a.mornings++;
+    if((d.sticks||[]).length)a.sticksDays++;
+    if(w.done)a.workouts++;
+    if(d.skin&&d.skin.pm)a.careDays++;
+    if((w.pullups||0)+(w.pushups||0)+(w.dips||0)>0){var t={date:k,pullups:w.pullups||0,pushups:w.pushups||0,dips:w.dips||0};if(!a.firstTest)a.firstTest=t;a.lastTest=t;a.tests.push(t)}
+  });
+  if(keys.length){
+    var d=keys[0],g=0;
+    while(d<=today&&g++<3000){
+      var x=S.days[d];
+      if(x&&x.closed&&x.oath&&d>=meta.xday&&!(x.sticks||[]).length){a.smokeRun++;a.smokeBest=Math.max(a.smokeBest,a.smokeRun)}
+      else if(d!==today)a.smokeRun=0;
+      if(x&&x.morning&&x.bedRel<=330){a.bedRun++;a.bedBest=Math.max(a.bedBest,a.bedRun)}
+      else if(d!==today)a.bedRun=0;
+      d=addDays(d,1);
+    }
+  }
+  return a;
+}
+function lastStickAt(){
+  var keys=Object.keys(S.days).sort().reverse();
+  for(var i=0;i<keys.length;i++){
+    var s=(S.days[keys[i]].sticks||[]).slice().sort(function(a,b){return skey(a.t)-skey(b.t)});
+    if(s.length){var t=s[s.length-1].t.split(':').map(Number),d=parse(keys[i]);d.setHours(t[0],t[1],0,0);if(t[0]*60+t[1]<300)d.setDate(d.getDate()+1);return d.getTime()}
+  }
+  return null;
+}
+function cleanText(){var t=lastStickAt();if(!t)return 'Записей пока нет';var m=Math.max(0,Math.floor((Date.now()-t)/60000)),dd=Math.floor(m/1440);return (dd?dd+' д ':'')+durShort(m%1440)}
+function calcStats(today){
+  var ds=[];for(var i=6;i>=0;i--){var d=S.days[addDays(today,-i)];if(d)ds.push(d)}
+  var r={sleep:null,sleepD:'Запиши утро: когда лёг и встал',body:null,bodyD:'Отмечай воду, еду и тренировки',skin:null,skinD:'Отмечай уход за кожей',will:null,willD:'Записывай стики и закрывай дни'};
+  var nights=ds.filter(function(d){return d.morning});
+  if(nights.length){
+    var dur=avg(nights.map(function(d){return Math.min(1,sleepMin(d)/480)}))*100,h=fmt1(avg(nights.map(sleepMin))/60);
+    var moods=nights.filter(function(d){return d.mood!=null}).map(function(d){return d.mood});
+    var md=moods.length?' · бодрость '+fmt1(avg(moods)):'';
+    if(nights.length>=2){
+      var m=avg(nights.map(function(d){return d.bedRel})),sd=Math.sqrt(avg(nights.map(function(d){return Math.pow(d.bedRel-m,2)})));
+      r.sleep=Math.round(dur*0.6+clamp(100-sd/90*100,0,100)*0.4);r.sleepD='Сон '+h+' ч · разброс отбоя ±'+Math.round(sd)+' мин'+md;
+    }else{r.sleep=Math.round(dur);r.sleepD='Сон '+h+' ч'+md}
+  }
+  var fd=ds.filter(function(d){return d.food}),wn=ds.filter(function(d){return d.workout&&d.workout.done}).length;
+  if(fd.length||wn){
+    var fs=fd.length?avg(fd.map(function(d){var f=d.food,ml=f.meals||{};var ok=f.ok!=null?f.ok/2:(f.protein!=null?f.protein/2:0.5);return ((ml.b?1:0)+(ml.l?1:0)+(ml.d?1:0))/3*0.3+ok*0.4+Math.min(1,(f.water||0)/8)*0.3})):0;
+    r.body=Math.round((fs*0.6+Math.min(1,wn/3)*0.4)*100);r.bodyD='Тренировок '+wn+' из 3 · еда и вода '+Math.round(fs*100)+'%';
+  }
+  if(ds.some(function(d){return d.skin})){
+    var care=ds.reduce(function(a,d){var s=d.skin||{};return a+(s.am?1:0)+(s.pm?1:0)},0)/(ds.length*2);
+    var rated=ds.filter(function(d){return d.skin&&d.skin.state}).map(function(d){return d.skin.state}),sa=rated.length?avg(rated):null;
+    r.skin=Math.round((care*0.6+(sa!=null?(sa-1)/4:care)*0.4)*100);r.skinD='Уход '+Math.round(care*100)+'% дней'+(sa!=null?' · состояние '+fmt1(sa)+' из 5':'');
+  }
+  var sd2=ds.filter(function(d){return d.closed||(d.sticks||[]).length});
+  if(sd2.length){var base=S.meta.baseline||10,as=avg(sd2.map(function(d){return (d.sticks||[]).length}));r.will=Math.round(clamp(1-as/base,0,1)*100);r.willD='В среднем '+fmt1(as)+' '+plural(Math.round(as),'стик','стика','стиков')+' в день · база '+base}
+  return r;
+}
+function buffs(today,C){
+  var out=[],t=S.days[today],y=S.days[addDays(today,-1)];
+  if(C.mult>1)out.push(['gold','Импульс ×'+fmtMult(C.mult),'Серия '+C.streakBefore+' '+plural(C.streakBefore,'день','дня','дней')+': весь опыт дня больше на '+Math.round((C.mult-1)*100)+'%. Не засчитаешь день, и Импульс сгорит.']);
+  if(t&&t.morning){var s=sleepMin(t);if(s<390)out.push(['bad','Недосып','Сон '+durTxt(s)+'. Мастер облегчил тренировку. Тяга и аппетит сегодня сильнее, держи воду рядом.'])}
+  var late=0;for(var i=0;i<3;i++){var x=S.days[addDays(today,-i)];if(x&&x.morning&&x.bedRel>390)late++}
+  if(late>=2)out.push(['bad','Сова','Отбой после 00:30 две ночи из трёх. Сегодня начни сворачиваться в 22:45.']);
+  if(y&&y.closed&&y.food&&(y.food.water||0)<4)out.push(['bad','Сухость','Вчера меньше 4 стаканов воды. Первый стакан сразу после подъёма.']);
+  var run=0;for(var j=0;j<10;j++){var z=S.days[addDays(today,-j)];if(z&&z.morning){if(z.bedRel<=330)run++;else break}else if(j>0)break}
+  if(run>=3)out.push(['good','Режим',run+' '+plural(run,'ночь','ночи','ночей')+' подряд с отбоем вовремя. Засыпать будет всё легче.']);
+  var wk=0;for(var k=1;k<=4;k++){var q=S.days[addDays(today,-k)];if(q&&q.workout&&q.workout.done)wk++}
+  if(wk>=2)out.push(['good','В тонусе',wk+' тренировки за 4 дня. Мышцы растут во сне, ложись вовремя.']);
+  var ls=lastStickAt();if(ls&&Date.now()-ls>=864e5)out.push(['good','Чистые лёгкие','Больше суток без стика.']);
+  return out;
+}
+function compute(){
+  var today=todayISO(),meta=S.meta,keys=Object.keys(S.days).sort(),perDay={},multOf={},xp=0,run=0,best=0,runBeforeToday=0;
+  if(keys.length){var d=keys[0],g=0;while(d<=today&&g++<3000){multOf[d]=1+0.05*Math.min(run,6);if(d===today)runBeforeToday=run;if(qualifies(S.days[d])){run++;best=Math.max(best,run)}else if(d!==today)run=0;d=addDays(d,1)}}
+  keys.forEach(function(k){if(k>today)return;var r=dayXP(S.days[k],k,meta,multOf[k]||1,today);perDay[k]=r;xp+=r.total});
+  var cw=Math.max(0,Math.floor(diffDays(START,today)/7)),bosses=[];
+  for(var w=0;w<=cw;w++){var b=bossWeek(w,today);bosses.push(b);if(b.done)xp+=b.xp}
+  var streak={cur:run,best:best},agg=aggregates(today),flags=meta.flags||{},miles=[];
+  CH.forEach(function(ch,ci){ch.m.forEach(function(m){var done=!!m[3](agg,flags,streak);miles.push({id:m[0],t:m[1],xp:m[2],done:done,flag:m[4]||null,ch:ci});if(done)xp+=m[2]})});
+  xp=Math.max(0,xp);
+  var C={today:today,meta:meta,xp:xp,lv:levelInfo(xp),perDay:perDay,bosses:bosses,boss:bosses[bosses.length-1],next:bossWeek(cw+1,today),stats:calcStats(today),streak:streak,streakBefore:runBeforeToday,mult:multOf[today]||1,agg:agg,miles:miles};
+  C.buffs=buffs(today,C);
+  return C;
+}
+function curChapter(C){for(var i=0;i<CH.length;i++){if(C.miles.some(function(m){return m.ch===i&&!m.done}))return i}return CH.length-1}
+function planFor(date,a){
+  var dd=S.days[date],od=dd&&dd.plan;
+  if(od&&od.title&&Array.isArray(od.items))return {kind:od.kind||'custom',title:String(od.title),where:String(od.where||''),min:Number(od.min)||20,items:od.items.map(String).slice(0,8)};
+  if(dd&&dd.morning&&sleepMin(dd)<390)return {kind:'light',title:'Лёгкий день',where:'Недосып: Мастер снизил нагрузку',min:20,items:['Прогулка 20–30 мин в спокойном темпе','Растяжка 10 мин','Силовую переносим на следующий день']};
+  var wd=parse(date).getDay(),t=a.lastTest;
+  if(wd===1||wd===5){
+    var it=['Разминка 5 мин: суставы, 20 прыжков, 10 приседаний'];
+    if(!t)it.push('Сначала тест: максимум подтягиваний, отжиманий и брусьев за один подход, запиши в журнале');
+    var p=t?t.pullups:0,di=t?t.dips:0,pu=t?t.pushups:0;
+    it.push(p>=3?'Подтягивания 4×'+Math.max(2,Math.round(p*0.6)):'Негативные подтягивания 4×3, опускание 5 сек');
+    it.push(di>=3?'Брусья 4×'+Math.max(2,Math.round(di*0.6)):'Негативы на брусьях 3×4');
+    it.push('Отжимания 3×'+(pu>=5?Math.round(pu*0.6):8));
+    it.push('Вис на турнике 3×20–30 сек');
+    return {kind:'strength',title:'Сила · верх',where:'Уличный зал или турник с брусьями дома',min:40,items:it};
+  }
+  if(wd===3)return {kind:'strength',title:'Сила · ноги и спина',where:'Дома с резинками',min:35,items:['Разминка 5 мин','Приседания 4×20','Выпады 3×10 на ногу','Тяга резинки к поясу 4×15','Разведение резинки 3×15','Планка 3×40 сек']};
+  if(wd===2||wd===4)return {kind:'cardio',title:'Лёгкий бег',where:'Дорожка в сквере',min:25,items:['5 мин быстрой ходьбы','15–20 мин лёгкого бега: темп, в котором можно говорить фразами','5 мин ходьбы и растяжка']};
+  if(wd===6)return {kind:'free',title:'Свободный день',where:'Уличный зал или прогулка',min:45,items:['Прогулка 40–60 мин','или повтор «Сила · верх», если есть настроение']};
+  return {kind:'rest',title:'Отдых',where:'Дома',min:10,items:['Растяжка 10 мин','Прогулка без телефона']};
+}
+function weekSum(from,C,lim){
+  var x={nights:0,sleep:[],ontime:0,sticks:[],work:0,water:0,xp:0,days:0};
+  for(var i=0;i<(lim||7);i++){
+    var date=addDays(from,i),d=S.days[date];if(!d||date>C.today)continue;
+    x.days++;
+    if(d.morning){x.nights++;x.sleep.push(sleepMin(d));if(d.bedRel<=330)x.ontime++}
+    if(d.closed||(d.sticks||[]).length)x.sticks.push((d.sticks||[]).length);
+    if(d.workout&&d.workout.done)x.work++;
+    if(((d.food||{}).water||0)>=8)x.water++;
+    if(C.perDay[date])x.xp+=C.perDay[date].total;
+  }
+  return x;
+}
+
+/* ---------- art ---------- */
+function emblem(lvl,letter){
+  var t=lvl<3?0:lvl<6?1:lvl<10?2:lvl<15?3:4,g='#f2c14e';
+  var s='<svg class="emblem" viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="eg" cx="50%" cy="35%" r="70%"><stop offset="0" stop-color="#3a3117"/><stop offset="1" stop-color="#0a0f1d"/></radialGradient></defs>';
+  if(t>=3)s+='<path d="M8 22 L1 16 L4 30 L10 34Z M56 22 L63 16 L60 30 L54 34Z" fill="'+g+'" opacity=".85"/>';
+  if(t>=4)s+='<circle cx="32" cy="32" r="30" fill="'+g+'" opacity=".18"/>';
+  s+='<path d="M32 5 L54 12 V30 C54 44 44 53 32 59 C20 53 10 44 10 30 V12 Z" fill="'+(t>=4?g:'url(#eg)')+'" stroke="'+g+'" stroke-width="'+(t>=2?3:2.2)+'"/>';
+  if(t>=1)s+='<path d="M32 11 L48 16 V30 C48 41 41 48 32 52 C23 48 16 41 16 30 V16 Z" fill="none" stroke="'+g+'" stroke-width="1.2" opacity=".55"/>';
+  if(t>=2)s+='<path d="M32 1 L34.4 6 L40 6.6 L35.8 10.2 L37 15.6 L32 12.8 L27 15.6 L28.2 10.2 L24 6.6 L29.6 6Z" fill="'+g+'"/>';
+  s+='<text x="32" y="40" text-anchor="middle" font-family="Unbounded,Arial Black,sans-serif" font-weight="700" font-size="20" fill="'+(t>=4?'#2a1d00':g)+'">'+esc(letter)+'</text></svg>';
+  return s;
+}
+function owl(cls){
+  return '<svg class="'+(cls||'owl')+'" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 22 L20 8 L26 18 Q32 15 38 18 L44 8 L50 22 Q56 34 50 46 Q42 58 32 58 Q22 58 14 46 Q8 34 14 22Z" fill="#2a2350" stroke="#f2c14e" stroke-width="2"/>'
+   +'<circle cx="23" cy="30" r="8" fill="#0a0f1d" stroke="#f2c14e" stroke-width="1.5"/><circle cx="41" cy="30" r="8" fill="#0a0f1d" stroke="#f2c14e" stroke-width="1.5"/>'
+   +'<circle cx="23" cy="30" r="3.4" fill="#f2c14e"/><circle cx="41" cy="30" r="3.4" fill="#f2c14e"/><path d="M29 38 L32 43 L35 38Z" fill="#f2c14e"/>'
+   +'<path d="M22 48 Q32 53 42 48" fill="none" stroke="#f2c14e" stroke-width="1.2" opacity=".6"/></svg>';
+}
+function bossArt(key,cls){
+  var o='<svg class="'+(cls||'boss-art')+'" viewBox="0 0 80 80" aria-hidden="true">';
+  if(key==='sleep')o+='<circle cx="40" cy="40" r="36" fill="#141b3a"/><path d="M52 14 A28 28 0 1 0 60 58 A22 22 0 1 1 52 14Z" fill="#d9d3b8"/><circle cx="34" cy="38" r="3.5" fill="#ef6b5e"/><circle cx="44" cy="44" r="3" fill="#ef6b5e"/><path d="M28 54 Q36 50 44 56" stroke="#3a2a4a" stroke-width="2.5" fill="none"/><text x="58" y="26" font-size="9" fill="#8d9ab3" font-family="sans-serif">z</text><text x="64" y="18" font-size="7" fill="#8d9ab3" font-family="sans-serif">z</text>';
+  else if(key==='smoke')o+='<circle cx="40" cy="40" r="36" fill="#1f1a24"/><path d="M18 60 C10 48 26 44 32 50 C40 58 56 54 50 42 C46 34 30 38 30 28 C30 18 46 14 56 22" fill="none" stroke="#9aa3b5" stroke-width="7" stroke-linecap="round"/><circle cx="56" cy="22" r="7" fill="#9aa3b5"/><circle cx="58" cy="20" r="2" fill="#ef6b5e"/><path d="M62 24 L68 26 M62 25 L67 29" stroke="#ef6b5e" stroke-width="1.5"/>';
+  else if(key==='iron')o+='<circle cx="40" cy="40" r="36" fill="#1c2230"/><rect x="20" y="18" width="40" height="40" rx="6" fill="#5b6475" stroke="#8d9ab3" stroke-width="2"/><rect x="26" y="30" width="10" height="6" fill="#f09a4a"/><rect x="44" y="30" width="10" height="6" fill="#f09a4a"/><rect x="28" y="44" width="24" height="6" rx="2" fill="#2a3140"/><path d="M28 44 v6 M34 44 v6 M40 44 v6 M46 44 v6" stroke="#5b6475" stroke-width="1.5"/><circle cx="24" cy="22" r="2" fill="#8d9ab3"/><circle cx="56" cy="22" r="2" fill="#8d9ab3"/>';
+  else o+='<circle cx="40" cy="40" r="36" fill="#102438"/><path d="M40 12 C52 30 60 40 60 50 A20 20 0 0 1 20 50 C20 40 28 30 40 12Z" fill="#6aa8ff" opacity=".9"/><circle cx="33" cy="48" r="3.5" fill="#0a0f1d"/><circle cx="47" cy="48" r="3.5" fill="#0a0f1d"/><circle cx="34" cy="47" r="1.2" fill="#fff"/><circle cx="48" cy="47" r="1.2" fill="#fff"/><path d="M34 58 Q40 61 46 58" stroke="#0a0f1d" stroke-width="2" fill="none"/>';
+  return o+'</svg>';
+}
+
+/* ---------- view pieces ---------- */
+function skyHTML(C){
+  var m=nowMin(),ph=phase(m),lv=C.lv,p,orb;
+  if(m>=300&&m<1260){p=(m-300)/960;orb='sun'}else{p=((m-1260+1440)%1440)/480;orb='moon'}
+  var x=8+p*84,y=46-Math.sin(Math.PI*p)*26;
+  var aurora=C.meta.sky==='aurora'&&lv.lvl>=4&&(ph==='night'||ph==='wind'||ph==='evening');
+  var chips='';
+  if(C.streak.cur>0)chips+='<span class="hchip">Серия '+C.streak.cur+'</span>';
+  if(C.mult>1)chips+='<span class="hchip hot">Импульс ×'+fmtMult(C.mult)+'</span>';
+  return '<header class="sky '+ph+'">'+(aurora?'<div class="aur" aria-hidden="true"></div>':'')+'<span class="orb '+orb+'" style="left:'+x.toFixed(1)+'%;top:calc('+Math.round(y)+'px + env(safe-area-inset-top,0px))" aria-hidden="true"></span>'
+    +'<div class="hud-row">'+emblem(lv.lvl,(C.meta.name||'a').charAt(0).toUpperCase())
+    +'<div class="hud-id"><div class="hud-name">'+esc(C.meta.name)+'</div><div class="hud-rank">'+rank(lv.lvl)+' · глава «'+esc(CH[curChapter(C)].t)+'»</div></div>'
+    +'<div class="lvl"><span>ур.</span><b class="tn">'+lv.lvl+'</b></div></div>'
+    +(chips?'<div class="hud-chips">'+chips+'</div>':'')
+    +'<div class="phase tn" data-live="phase">'+phaseText(m)+'</div>'
+    +'<div class="xpbar" role="progressbar" aria-label="Опыт до следующего уровня" aria-valuemin="0" aria-valuemax="'+lv.need+'" aria-valuenow="'+lv.into+'"><i style="width:'+(lv.into/lv.need*100).toFixed(1)+'%"></i></div>'
+    +'<div class="xp-meta tn"><span>'+lv.into+' / '+lv.need+' XP</span><span>всего '+C.xp+'</span></div></header>';
+}
+function phaseText(m){
+  var s=PHASE[phase(m)]+' · '+hhmm(m);
+  if(m>=1080&&m<1410)s+=' · до отбоя '+durShort(1410-m);
+  else if(phase(m)==='night')s+=' · отбой просрочен на '+durShort(m>=1410?m-1410:m+30);
+  return s;
+}
+function bedCd(m){return (m>=1080&&m<1410)?durShort(1410-m):'+'+durShort(m>=1410?m-1410:m+30)}
+function tabbar(){return '<nav class="tabbar" aria-label="Разделы"><div class="tabbar-in">'+TABS.map(function(t){return '<button class="tab" data-act="tab" data-v="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+ICONS[t[0]]+'<span>'+t[1]+'</span></button>'}).join('')+'</div></nav>'}
+function syncNote(){if(!GH)return '<p class="mute small">Синхронизация не настроена: записи только на этом телефоне. Настрой на вкладке «Мастер».</p>';if(SY.state==='err')return '<p class="small bad">Нет связи с GitHub. Записи сохранены на телефоне и отправятся позже.</p>';return ''}
+function seg(v,c){var n=v==null?0:Math.round(v/10),h='<div class="seg" style="--c:'+c+'">';for(var i=0;i<10;i++)h+='<i'+(i<n?' class="on"':'')+'></i>';return h+'</div>'}
+function statRow(n,v,d,c){return '<div class="stat"><div class="stat-h"><span class="stat-n">'+n+'</span><b class="stat-v">'+(v==null?'—':v)+'</b></div>'+seg(v,c)+'<div class="stat-d">'+esc(d)+'</div></div>'}
+function statsCard(s){return '<section class="panel"><h2>Характеристики · 7 дней</h2>'+statRow('СОН',s.sleep,s.sleepD,'var(--sleep)')+statRow('ТЕЛО',s.body,s.bodyD,'var(--body)')+statRow('КОЖА',s.skin,s.skinD,'var(--skin)')+statRow('ВОЛЯ',s.will,s.willD,'var(--will)')+'</section>'}
+function toggleRow(act,label,on,xp,v,sub){
+  return '<button class="quest'+(on?' done':'')+'" data-act="'+act+'"'+(v!=null?' data-v="'+esc(v)+'"':'')+' aria-pressed="'+!!on+'"><span class="chk"></span><span class="qt">'+(sub?'<b class="st">'+esc(label)+'</b><span class="sd">'+esc(sub)+'</span>':esc(label))+'</span>'+(xp?'<span class="qxp">'+xp+'</span>':'')+'</button>';
+}
+function questsCard(d,title){return '<section class="panel"><div class="split"><h2>'+title+'</h2><span class="qxp">по +30</span></div>'+(d.quests||[]).map(function(q,i){return toggleRow('quest',q.text,q.done,'',String(i))}).join('')+'</section>'}
+function duoCard(date,d){var u=duoFor(date,d);return '<section class="panel duo"><div class="split"><h2>Квест на двоих</h2><span class="tag duo">кооп</span></div>'+toggleRow('duo',u.text,u.done,'+40')+'</section>'}
+function masterSay(text,meta){return '<section class="panel"><div class="master">'+owl()+'<div class="say-t"><span class="who">Мастер'+(meta?' · '+esc(meta):'')+'</span><p>'+esc(text)+'</p></div></div></section>'}
+function briefCard(d){if(!d.brief||!d.brief.text)return '';var at=d.brief.at?new Date(d.brief.at):null;return masterSay(d.brief.text,at?hhmm(at.getHours()*60+at.getMinutes()):'')}
+function sideCard(d){
+  var s=d.side||[];if(!s.length)return '';
+  return '<section class="panel twist"><div class="split"><h2>Сюжетный поворот</h2><span class="tag twist">испытания</span></div>'+s.map(function(x,i){
+    return '<button class="quest'+(x.done?' done':'')+'" data-act="side" data-v="'+i+'" aria-pressed="'+!!x.done+'"><span class="chk"></span><span class="qt"><b class="st">'+esc(x.title)+'</b>'+(x.text?'<span class="sd">'+esc(x.text)+'</span>':'')+(x.badge?'<span class="badge-n">Трофей: '+esc(x.badge)+'</span>':'')+'</span><span class="qxp">+'+esc(x.xp)+'</span></button>';
+  }).join('')+'</section>';
+}
+function bossCard(b,big){
+  if(!b)return '';
+  var hp='';for(var i=0;i<b.need;i++)hp+='<i'+(i<b.ok?' class="lost"':'')+'></i>';
+  var hit=S.hitAnim&&Date.now()-S.hitAnim<1500;
+  var status=b.done?'<span class="good">Повержен</span>':b.failed?'<span class="bad">Ушёл в этот раз</span>':!b.started?'Появится '+fmtShort(b.from):'HP '+(b.need-b.ok)+' из '+b.need;
+  return '<section class="panel boss"><div class="split"><h2>Босс недели · '+fmtShort(b.from)+'–'+fmtShort(b.to)+'</h2><span class="tag">+'+b.xp+' XP</span></div>'
+    +'<div class="boss-top">'+bossArt(b.key,'boss-art'+(b.done?' dead':hit?' hit':''))+'<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div class="title">'+esc(b.title)+(b.cyc?' <span class="mute small">круг '+(b.cyc+1)+'</span>':'')+'</div><p class="small mute">'+esc(b.text)+'</p>'
+    +'<div class="hp" style="grid-template-columns:repeat('+b.need+',1fr)">'+hp+'</div><p class="small tn">'+status+'</p></div></div>'
+    +(big?'<p class="lore">'+esc(b.lore)+'</p>':'')
+    +'<div class="pips">'+b.days.map(function(x){return '<div class="pip '+x.st+'"><i></i><span>'+WD[parse(x.date).getDay()]+'</span></div>'}).join('')+'</div></section>';
+}
+function draft(date){
+  if(!S.dm||S.dm.date!==date){
+    var d=S.days[date],last=null;
+    Object.keys(S.days).sort().reverse().some(function(k){if(k<date&&S.days[k].morning){last=S.days[k];return true}});
+    var src=d&&d.morning?d:last;
+    S.dm={date:date,bedRel:src?src.bedRel:360,wake:src?src.wake:460,mood:d&&d.mood!=null?d.mood:null};
+  }
+  return S.dm;
+}
+function timeStep(label,act,val){return '<div class="tstep"><span class="lbl">'+label+'</span><div class="tstep-r"><button class="sq" data-act="'+act+'" data-d="-15" aria-label="'+label+' на 15 минут раньше">−</button><b class="tv">'+val+'</b><button class="sq" data-act="'+act+'" data-d="15" aria-label="'+label+' на 15 минут позже">+</button></div></div>'}
+function numStep(label,act,k,val){return '<div class="nstep"><span class="nl">'+label+'</span><div class="tstep-r"><button class="sq" data-act="'+act+'" data-k="'+k+'" data-d="-1" aria-label="Меньше: '+label+'">−</button><b class="tv">'+val+'</b><button class="sq" data-act="'+act+'" data-k="'+k+'" data-d="1" aria-label="Больше: '+label+'">+</button></div></div>'}
+function opts(act,list,cur,cls){return '<div class="opts'+(cls?' '+cls:'')+'">'+list.map(function(o){var on=cur!=null&&cur!==''&&String(cur)===String(o[0]);return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="'+act+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div>'}
+function grid10(act,cur){var h='<div class="grid5">';for(var i=1;i<=10;i++)h+='<button class="chip'+(cur===i?' on':'')+'" aria-pressed="'+(cur===i)+'" data-act="'+act+'" data-v="'+i+'">'+i+'</button>';return h+'</div>'}
+function morningForm(date,focus){
+  var d=S.days[date]||newDay(date),dm=draft(date),sm=((dm.wake-bedClock(dm.bedRel))+1440)%1440,late=dm.bedRel>330;
+  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Утро · как спал</h2>'+(d.morning?'<span class="qxp good">записано</span>':'<span class="qxp">до +70</span>')+'</div>'
+    +'<div class="row2">'+timeStep('Лёг','bed',hhmm(bedClock(dm.bedRel)))+timeStep('Встал','wake',hhmm(dm.wake))+'</div>'
+    +'<p class="line tn">Сон '+durTxt(sm)+' · '+(late?'<span class="bad">отбой позже 23:30</span>':'<span class="good">отбой до 23:30</span>')+'</p>'
+    +'<span class="lbl">Бодрость 1–10</span>'+grid10('mood',dm.mood)
+    +'<button class="btn" data-act="morning"'+(dm.mood==null?' disabled':'')+'>'+(d.morning?'Обновить утро':'Записать утро')+'</button>'
+    +(dm.mood==null?'<p class="mute small">Выбери бодрость, чтобы записать.</p>':'')+'</section>';
+}
+function planCard(date,a,d,focus){
+  var p=planFor(date,a),w=d.workout||{};
+  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Тренировка · '+WD[parse(date).getDay()]+'</h2><span class="tag">'+p.min+' мин</span></div>'
+    +'<div class="title">'+esc(p.title)+'</div><p class="mute small">'+esc(p.where)+'</p>'
+    +'<ol class="plan">'+p.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ol>'
+    +(p.kind!=='rest'&&p.kind!=='light'?'<p class="mute small">После тренировки сразу в душ: пот на спине лучше не оставлять на коже.</p>':'')
+    +toggleRow('wdone',p.kind==='rest'||p.kind==='light'?'Сделано':'Тренировка сделана',w.done,'+40')+'</section>';
+}
+function glasses(n){var h='<div class="glasses" aria-hidden="true">';for(var i=0;i<8;i++)h+='<i class="gl'+(i<n?' on':'')+'"></i>';return h+'</div>'}
+function fuelCard(d,focus){
+  var f=d.food||{},w=f.water||0,ml=f.meals||{};
+  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>Топливо</h2><span class="qxp">вода 8 = +15</span></div>'+glasses(w)
+    +'<div class="split"><b class="tv tn">'+w+' / 8</b><div class="split"><button class="sq" data-act="water" data-d="-1" aria-label="Убрать стакан">−</button><button class="btn small" data-act="water" data-d="1">+ стакан</button></div></div>'
+    +'<span class="lbl">Приёмы пищи</span><div class="chips">'+[['b','Завтрак'],['l','Обед'],['d','Ужин']].map(function(x){var on=!!ml[x[0]];return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="meal" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
+    +toggleRow('nomeat','День без красного мяса',f.nomeat,'+10')+'</section>';
+}
+function closeBlock(date,d){
+  if(d.closed){var pd=compute().perDay[date];return '<p class="line good">День закрыт'+(pd?' · итог '+pd.total+' XP':'')+'.</p><button class="link" data-act="reopen" data-date="'+date+'">Открыть день снова</button>'}
+  if(S.oath===date)return '<div class="oath"><p class="line">Стиков сегодня не записано. Чистый день даёт +50 XP, но только честно.</p><button class="btn" data-act="oathyes" data-date="'+date+'">Подтверждаю: стиков не было</button><button class="btn ghost" data-act="oathno">Был стик, запишу</button></div>';
+  return '<button class="btn" data-act="closeday" data-date="'+date+'">Закрыть день</button>';
+}
+function eveningCard(date,d,focus,title){
+  var f=d.food||{},sk=d.skin||{},done=f.ok!=null&&sk.state&&d.stress!=null;
+  return '<section class="panel'+(focus?' focus':'')+'"><div class="split"><h2>'+(title||'Вечерний чек')+'</h2><span class="qxp'+(done?' good':'')+'">'+(done?'готово':'3 тапа · +15')+'</span></div>'
+    +'<span class="lbl">Ел сегодня нормально?</span>'+opts('foodok',[[2,'Да'],[1,'Так себе'],[0,'Нет']],f.ok)
+    +'<span class="lbl">Кожа сегодня · 1 воспалений много, 5 чисто</span>'+opts('skinstate',[[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']],sk.state||'','opts5')
+    +'<span class="lbl">Стресс за день</span>'+opts('stress',[[3,'Низкий'],[6,'Средний'],[9,'Высокий']],d.stress==null?'':(d.stress<=4?3:d.stress<=7?6:9))
+    +toggleRow('skin','Уход за кожей вечером',sk.pm,'+10','pm')
+    +'<label class="fld" for="joy-'+date+'"><span>Что сегодня было хорошего · по желанию, +10</span><input id="joy-'+date+'" class="txt" data-save="joy" maxlength="200" value="'+esc(d.joy||'')+'" placeholder="Одна вещь, даже мелкая"></label>'
+    +closeBlock(date,d)+'</section>';
+}
+function sayCard(date,d){
+  var evs=(d.events||[]).map(function(e){return '<span>'+esc(e.text)+(e.done?' · учтено':' · ждёт Мастера')+'</span>'}).join('');
+  var notes=String(d.note||'').trim();
+  return '<section class="panel"><h2>Сказать Мастеру</h2>'+opts('saymode',[['event','Меняет сегодня'],['note','Просто заметка']],S.sayMode,'opts2')
+    +'<p class="mute small">'+(S.sayMode==='event'?'Кино, гости, задержка на работе: Мастер перестроит квесты и план в течение часа.':'Мысли, самочувствие, пожелания: Мастер учтёт утром.')+'</p>'
+    +'<div class="ask"><input id="say-in" class="txt" maxlength="300" placeholder="'+(S.sayMode==='event'?'Например: вечером кино на 3 часа':'Например: болит плечо после турника')+'" enterkeyhint="send"><button class="btn small" data-act="saysend">Отправить</button></div>'
+    +(evs?'<div class="log">'+evs+'</div>':'')+(notes?'<p class="small mute" style="white-space:pre-wrap">'+esc(notes)+'</p>':'')+'</section>';
+}
+function buffsCard(list){return '<section class="panel"><h2>Состояния</h2>'+list.map(function(b){return '<div class="buff '+b[0]+'"><i>'+esc(b[1])+'</i><p>'+esc(b[2])+'</p></div>'}).join('')+'</section>'}
+function windHeader(d,m){
+  var late=phase(m)==='night',qi=-1;
+  (d.quests||[]).forEach(function(q,i){if(qi<0&&/телефон/i.test(q.text))qi=i});
+  return '<section class="panel focus"><h2>'+(late?'Отбой просрочен':'До отбоя 23:30')+'</h2><div class="cd tn" data-live="bedcd">'+bedCd(m)+'</div>'
+    +'<p class="mute small">'+(late?'Всё несделанное подождёт до завтра. Экран выключить, свет погасить.':'Экран убрать за 30 минут, свет приглушить.')+'</p>'
+    +(qi>=0?toggleRow('quest',d.quests[qi].text,d.quests[qi].done,'+30',String(qi)):'')+'</section>';
+}
+
+/* ---------- views ---------- */
+function viewNow(C){
+  var t=C.today,d=S.days[t]||newDay(t),m=nowMin(),ph=phase(m),h='<div class="stack">'+syncNote();
+  var y=addDays(t,-1),yd=S.days[y];
+  if(yd&&!yd.closed&&(ph==='morning'||ph==='day'))h+='<section class="panel slim"><div class="split"><p class="small">Вчерашний день не закрыт</p><button class="btn small" data-act="tab" data-v="log" data-date="'+y+'">Закрыть вчера</button></div></section>';
+  h+=briefCard(d);
+  if(!d.morning&&ph!=='wind'&&ph!=='night')h+=morningForm(t,true);
+  else if(ph==='wind'||ph==='night'){h+=windHeader(d,m)+eveningCard(t,d,false)}
+  else if(ph==='evening'){if(!(d.workout&&d.workout.done))h+=planCard(t,C.agg,d,true);h+=eveningCard(t,d,!!(d.workout&&d.workout.done))}
+  else h+=fuelCard(d,true);
+  var f=d.food||{};
+  h+='<div class="quick"><button class="qbtn w" data-act="water" data-d="1"><b>'+(f.water||0)+'</b><span>+ стакан воды</span></button>'
+    +'<button class="qbtn s" data-act="tab" data-v="smoke"><b>'+(d.sticks||[]).length+'</b><span>записать стик</span></button>'
+    +'<button class="qbtn c" data-act="cravego"><b>10:00</b><span>пережить тягу</span></button></div>';
+  h+=sideCard(d)+questsCard(d,'Квесты дня')+duoCard(t,d);
+  if(ph==='morning'||ph==='day')h+=(d.morning?'':'')+planCard(t,C.agg,d,false);
+  h+=sayCard(t,d);
+  if(C.buffs.length)h+=buffsCard(C.buffs);
+  h+=bossCard(C.boss,false)+statsCard(C.stats);
+  return h+'</div>';
+}
+function dateNav(date,today){return '<div class="dates"><button class="sq" data-act="prev" aria-label="Предыдущий день">‹</button><div>'+fmtDate(date)+(date===today?' · сегодня':'')+'</div><button class="sq" data-act="next"'+(date>=today?' disabled':'')+' aria-label="Следующий день">›</button></div>'}
+function viewLog(C){
+  var date=S.view,d=S.days[date]||newDay(date),w=d.workout||{},sk=d.skin||{};
+  var h=dateNav(date,C.today)+'<div class="stack">';
+  h+=morningForm(date,false)+sideCard(d)+questsCard(d,'Квесты')+duoCard(date,d)+planCard(date,C.agg,d,false);
+  h+='<section class="panel"><h2>Журнал тренировки</h2><div class="chips">'+WT.map(function(t){var on=(w.types||[]).indexOf(t)>=0;return '<button class="chip'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="wtype" data-v="'+t+'">'+t+'</button>'}).join('')+'</div>'
+    +'<span class="lbl">Тест: максимум за один подход</span>'+numStep('Подтягивания','wnum','pullups',w.pullups||0)+numStep('Отжимания','wnum','pushups',w.pushups||0)+numStep('Брусья','wnum','dips',w.dips||0)
+    +'<p class="mute small">Тест раз в две недели. План подходов считается от последнего теста.</p></section>';
+  h+=fuelCard(d,false);
+  h+='<section class="panel"><h2>Кожа утром</h2>'+toggleRow('skin','Уход за кожей утром',sk.am,'+10','am')+'</section>';
+  h+=eveningCard(date,d,false,'Вечер и итог дня');
+  var pd=C.perDay[date];
+  if(pd&&pd.parts.length)h+='<section class="panel"><h2>Начислено · '+pd.total+' XP</h2><div class="hist">'+pd.parts.map(function(p){return '<div><span>'+esc(p[0])+'</span><b class="tn '+(p[1]<0?'bad':'good')+'">'+(p[1]>0?'+':'')+p[1]+'</b></div>'}).join('')+'</div></section>';
+  return h+'</div>';
+}
+function barChart(vals,labels,o){
+  var W=320,H=132,pl=24,pr=8,pt=12,pb=20,n=vals.length,cw=(W-pl-pr)/n,max=o.max;
+  function y(v){return pt+(H-pt-pb)*(1-v/max)}
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.label)+'">';
+  o.ticks.forEach(function(t){s+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(t).toFixed(1)+'" y2="'+y(t).toFixed(1)+'"/><text class="ax" x="'+(pl-5)+'" y="'+(y(t)+3).toFixed(1)+'" text-anchor="end">'+t+'</text>'});
+  vals.forEach(function(v,i){
+    var x=pl+i*cw+cw*0.2,w=cw*0.6;
+    if(v==null)s+='<rect class="nil" x="'+x.toFixed(1)+'" y="'+(H-pb-2)+'" width="'+w.toFixed(1)+'" height="2"/>';
+    else{var hh=Math.max(2,(H-pb)-y(Math.min(v,max)));s+='<rect class="'+o.cls(v,i)+'" x="'+x.toFixed(1)+'" y="'+((H-pb)-hh).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+hh.toFixed(1)+'" rx="2"/>'}
+    s+='<text class="ax" x="'+(x+w/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle">'+labels[i]+'</text>';
+  });
+  if(o.ref!=null)s+='<line class="ref" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y(o.ref).toFixed(1)+'" y2="'+y(o.ref).toFixed(1)+'"/><text class="ref-t" x="'+(W-pr)+'" y="'+(y(o.ref)-4).toFixed(1)+'" text-anchor="end">'+esc(o.refLabel)+'</text>';
+  return s+'</svg>';
+}
+function retroCard(C){
+  var cur=monday(C.today),prev=addDays(cur,-7),span=diffDays(cur,C.today)+1,a=weekSum(cur,C),b=weekSum(prev,C,span);
+  if(!a.days&&!b.days)return '';
+  function cell(v,fmt){return v==null?'<b class="mute">—</b>':'<b>'+fmt(v)+'</b>'}
+  function delta(x,y,better){if(x==null||y==null||x===y)return '';var up=x>y,good=better==='up'?up:!up;return ' <span class="'+(good?'up':'down')+'">'+(up?'↑':'↓')+'</span>'}
+  var rows=[
+    ['Сон в среднем',a.sleep.length?avg(a.sleep)/60:null,b.sleep.length?avg(b.sleep)/60:null,function(v){return fmt1(v)+' ч'},'up'],
+    ['Отбой до 23:30',a.days?a.ontime:null,b.days?b.ontime:null,function(v){return v},'up'],
+    ['Стиков в день',a.sticks.length?avg(a.sticks):null,b.sticks.length?avg(b.sticks):null,function(v){return fmt1(v)},'down'],
+    ['Тренировки',a.days?a.work:null,b.days?b.work:null,function(v){return v},'up'],
+    ['Дни с водой 8+',a.days?a.water:null,b.days?b.water:null,function(v){return v},'up'],
+    ['Опыт',a.days?a.xp:null,b.days?b.xp:null,function(v){return v},'up']
+  ];
+  return '<section class="panel"><h2>Итоги недели'+(span<7?' · '+span+' '+plural(span,'день','дня','дней')+' против тех же дней прошлой':'')+'</h2><div class="retro"><span class="h"></span><span class="h">Эта</span><span class="h">Прошлая</span>'+(span<7?'':'')
+    +rows.map(function(r){return '<span>'+r[0]+'</span><span>'+cell(r[1],r[3])+delta(r[1],r[2],r[4])+'</span><span>'+cell(r[2],r[3])+'</span>'}).join('')+'</div></section>';
+}
+function viewPath(C){
+  var ci=curChapter(C),ch=CH[ci],h='<div class="stack">';
+  var mine=C.miles.filter(function(m){return m.ch===ci});
+  h+='<section class="panel focus"><h2>Глава '+(ci+1)+' из '+CH.length+'</h2><div class="title">'+esc(ch.t)+'</div><p class="lore">'+esc(ch.lore)+'</p>'
+    +mine.map(function(m){if(m.flag&&!m.done)return toggleRow('flag',m.t,false,'+'+m.xp,m.flag);return '<div class="mile'+(m.done?' done':'')+'"><span class="chk"></span><span class="t">'+esc(m.t)+'</span><span class="qxp">+'+m.xp+'</span></div>'}).join('')+'</section>';
+  h+=bossCard(C.boss,true);
+  h+=retroCard(C);
+  h+='<section class="panel"><h2>Сюжет</h2>'+CH.map(function(c,i){var ms=C.miles.filter(function(m){return m.ch===i}),dn=ms.filter(function(m){return m.done}).length;return '<div class="chap"><span>'+(i+1)+'. '+esc(c.t)+(i===ci?' · <span class="good">сейчас</span>':'')+'</span><span class="tn mute">'+dn+' / '+ms.length+'</span></div>'}).join('')+'</section>';
+  var past=C.bosses.slice(0,-1).reverse();
+  h+='<section class="panel"><h2>Боссы</h2><div class="hist"><div><span>Дальше: '+esc(C.next.title)+'</span><span class="mute">с '+fmtShort(C.next.from)+'</span></div>'
+    +past.map(function(b){return '<div><span>'+esc(b.title)+' · '+fmtShort(b.from)+'</span><b class="tn '+(b.done?'good':'bad')+'">'+(b.done?'повержен':b.ok+'/'+b.need)+'</b></div>'}).join('')+'</div><p class="mute small">Каждую неделю новый босс. На втором круге они сильнее и щедрее.</p></section>';
+  var tro=[];Object.keys(S.days).sort().forEach(function(k){(S.days[k].side||[]).forEach(function(s){if(s.done&&s.badge)tro.push([k,s])})});
+  h+='<section class="panel"><h2>Трофеи</h2>'+(tro.length?'<div class="hist">'+tro.reverse().map(function(p){return '<div><span>'+esc(p[1].badge)+'</span><span class="mute">'+fmtShort(p[0])+'</span></div>'}).join('')+'</div>':'<p class="mute small">Трофеи дают испытания из «Сюжетного поворота». Скажи Мастеру, что меняется сегодня, и они появятся.</p>')+'</section>';
+  var days=[],t=C.today;for(var i=13;i>=0;i--)days.push(addDays(t,-i));
+  var lab=days.map(function(x){return parse(x).getDate()});
+  var sl=days.map(function(x){var d=S.days[x];return d&&d.morning?Math.round(sleepMin(d)/6)/10:null});
+  if(sl.some(function(v){return v!=null}))h+='<section class="panel"><h2>Сон · 14 дней, часы</h2>'+barChart(sl,lab,{max:10,ticks:[0,5,10],ref:7,refLabel:'7 ч',label:'Сон по дням',cls:function(v,i){return S.days[days[i]].bedRel<=330?'b-good':'b-late'}})+'<div class="legend"><span><i style="background:var(--sleep)"></i>отбой до 23:30</span><span><i style="background:#6b4b63"></i>позже</span></div></section>';
+  var base=C.meta.baseline||10,st=days.map(function(x){var d=S.days[x];return d&&(d.closed||(d.sticks||[]).length)?(d.sticks||[]).length:null});
+  if(st.some(function(v){return v!=null})){var mx=Math.max(base,Math.max.apply(null,st.map(function(v){return v||0})))+2;h+='<section class="panel"><h2>Стики · 14 дней</h2>'+barChart(st,lab,{max:mx,ticks:[0,Math.round(mx/2),mx],ref:base,refLabel:'база '+base,label:'Стики по дням',cls:function(v){return v===0?'b-zero':'b-smoke'}})+'</section>'}
+  if(C.agg.dataDays>=14){
+    var start=addDays(t,-(((parse(t).getDay()+6)%7)+28)),cells='',mxx=1;
+    Object.keys(C.perDay).forEach(function(k){mxx=Math.max(mxx,C.perDay[k].total)});
+    ['пн','вт','ср','чт','пт','сб','вс'].forEach(function(x){cells+='<b>'+x+'</b>'});
+    for(var j=0;j<35;j++){var dt=addDays(start,j),pd=C.perDay[dt],cls=(pd&&pd.total>0?'v':'')+(dt===t?' now':'');cells+='<i class="'+cls+'"'+(pd&&pd.total>0?' style="--a:'+(0.2+0.8*pd.total/mxx).toFixed(2)+'"':'')+'></i>'}
+    h+='<section class="panel"><h2>Карта опыта · 5 недель</h2><div class="heat">'+cells+'</div></section>';
+  }
+  if(C.agg.tests.length)h+='<section class="panel"><h2>Тесты силы</h2><div class="hist">'+C.agg.tests.slice(-6).reverse().map(function(x){return '<div><span>'+fmtShort(x.date)+'</span><span class="tn">подт. '+x.pullups+' · отж. '+x.pushups+' · брусья '+x.dips+'</span></div>'}).join('')+'</div></section>';
+  return h+'</div>';
+}
+function viewSmoke(C){
+  var t=C.today,d=S.days[t]||newDay(t),n=(d.sticks||[]).length,base=C.meta.baseline||10,xd=C.meta.xday,left=diffDays(t,xd),after=t>=xd;
+  var h='<div class="stack">'+syncNote();
+  h+='<section class="panel focus"><h2>Без стика</h2><div class="clean" data-live="clean">'+cleanText()+'</div>'
+    +'<p class="mute small" style="text-align:center">'+(left>0?'Х-день '+fmtDate(xd)+', через '+left+' '+plural(left,'день','дня','дней')+'. Сейчас разведка: каждый записанный стик +2 XP.':left===0?'Сегодня Х-день. Чистый день +50 XP.':'Режим отказа. Чистый день +50 XP.')+'</p></section>';
+  if(after&&n){var cb=comeback(d,t,t);
+    h+='<section class="panel twist"><div class="split"><h2>Камбэк</h2><span class="tag twist">+20 XP</span></div>'
+      +(cb.state==='active'?'<p class="line">Срыв в '+esc(cb.from)+' записан честно (+5). Продержись до <b>'+esc(cb.until)+'</b>, и камбэк засчитан.</p><p class="small mute tn">Осталось '+durShort(cb.left)+'</p>'
+        :cb.state==='ok'?'<p class="line good">Камбэк засчитан: 3 часа без стика после срыва.</p>':'<p class="line">Камбэк сегодня не вышел. Завтра новый день, Импульс можно вернуть.</p>')+'</section>';
+  }
+  h+='<section class="panel"><h2>Стики сегодня</h2><div class="big tn">'+n+' <small>/ '+base+'</small></div><div class="bar"><i style="width:'+Math.min(100,n/base*100)+'%"></i></div>';
+  var price=Number(C.meta.packPrice)||0;
+  if(price>0&&after){var saved=0,dt=xd,g=0;while(dt<=t&&g++<2000){var x=S.days[dt];if(x&&x.closed)saved+=Math.max(0,base-(x.sticks||[]).length)*price/20;dt=addDays(dt,1)}h+='<p class="line">Сэкономлено с Х-дня: <b class="tn">'+Math.round(saved)+' ₽</b></p>'}
+  else if(!price)h+='<p class="mute small">Укажи цену пачки в настройках на вкладке «Мастер», и здесь появятся сэкономленные деньги.</p>';
+  h+='</section>';
+  var sm=S.stickT!=null?S.stickT:nowMin(),past=S.stickT!=null;
+  h+='<section class="panel"><h2>Закурил: какой был повод</h2><p class="mute small">Честная запись всегда приносит опыт. Пустая строка нет.</p>'
+    +'<div class="stime"><span class="lbl">Время</span><div class="stime-r"><button class="sq sm" data-act="stime" data-d="-60" aria-label="На час раньше">−1ч</button><button class="sq sm" data-act="stime" data-d="-15" aria-label="На 15 минут раньше">−15</button>'
+    +'<b class="tv tn'+(past?' past':'')+'">'+hhmm(sm)+'</b><button class="sq sm" data-act="stime" data-d="15"'+(past?'':' disabled')+' aria-label="На 15 минут позже">+15</button><button class="sq sm" data-act="stime" data-d="60"'+(past?'':' disabled')+' aria-label="На час позже">+1ч</button></div>'
+    +(past?'<button class="link" data-act="stimenow">Вернуть «сейчас»</button>':'<span class="mute small">сейчас · чтобы вписать прошлый стик, сдвинь время назад</span>')+'</div>'
+    +'<div class="chips">'+TRIG.map(function(x){return '<button class="chip" data-act="stick" data-v="'+x+'">'+x+'</button>'}).join('')+'</div>';
+  if(n)h+='<span class="lbl">Записано сегодня · нажми, чтобы удалить</span><div class="log">'+d.sticks.map(function(s,i){return '<button class="logx tn" data-act="delstick" data-v="'+i+'" aria-label="Удалить '+esc(s.t)+'">'+esc(s.t)+' · '+esc(s.trig)+' <b>×</b></button>'}).join('')+'</div>';
+  h+='</section>';
+  var c=S.craving,rem=c?c.end-Date.now():0;
+  h+='<section class="panel"><h2>Тяга</h2>';
+  if(!c)h+='<p class="mute small">Захотелось? Подожди 10 минут. Тяга обычно уходит за 5–10 минут. Каждая пережитая тяга +10 XP.</p><button class="btn" data-act="cstart">Жду 10 минут</button>';
+  else if(rem>0)h+='<div class="timer" id="crave-t">'+mmss(rem)+'</div><p class="line" style="text-align:center">'+esc(c.tip||TIPS[0])+'</p><button class="btn ghost small" data-act="ccancel">Отмена</button>';
+  else h+='<div class="timer">00:00</div><p class="line" style="text-align:center">Время вышло. Как прошло?</p><div class="row2"><button class="btn" data-act="cwin">Выдержал</button><button class="btn ghost" data-act="clost">Закурил</button></div>';
+  h+='</section>';
+  var cnt={};for(var i=0;i<7;i++){var z=S.days[addDays(t,-i)];if(z)(z.sticks||[]).forEach(function(s){cnt[s.trig]=(cnt[s.trig]||0)+1})}
+  var ks=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a]}),mx=ks.length?cnt[ks[0]]:1;
+  h+='<section class="panel"><h2>Поводы · 7 дней</h2>';
+  if(ks.length)h+=ks.map(function(k){return '<div class="tr"><span>'+esc(k)+'</span><div class="bar"><i style="width:'+(cnt[k]/mx*100)+'%"></i></div><b class="tn">'+cnt[k]+'</b></div>'}).join('')+'<div class="master">'+owl()+'<div class="say-t"><span class="who">Замена для «'+esc(ks[0])+'»</span><p class="small">'+esc(SWAP[ks[0]]||SWAP['Другое'])+'</p></div></div>';
+  else h+='<p class="mute small">Пока нет данных. Нажимай повод сразу после стика.</p>';
+  return h+'</section></div>';
+}
+function viewMaster(C){
+  var date=S.view,d=S.days[date]||newDay(date),deb=d.debrief,debDate=date;
+  if(!deb)Object.keys(S.days).sort().reverse().some(function(k){if(k<=date&&S.days[k].debrief){deb=S.days[k].debrief;debDate=k;return true}});
+  var h=dateNav(date,C.today)+'<div class="stack">';
+  if(deb)h+='<section class="panel"><div class="master">'+owl()+'<div class="say-t"><span class="who">Разбор · '+fmtDate(debDate)+'</span><p><b>Главный провал.</b> '+esc(deb.fail)+'</p><p><b>Действие.</b> '+esc(deb.action)+'</p>'+(deb.note?'<p class="mute small">'+esc(deb.note)+'</p>':'')+'</div></div></section>';
+  else h+=masterSay('Разбора пока нет. Я пишу его утром за прошедший день: главный провал, одно действие и новые квесты. События дня подхватываю в течение часа.','');
+  h+='<button class="btn ghost" data-act="intro">Как играть</button>';
+  var M=C.meta,lv=C.lv.lvl;
+  h+='<section class="panel"><h2>Настройки</h2>'
+    +'<label class="fld" for="set-name"><span>Имя героя</span><input id="set-name" class="txt" maxlength="20" value="'+esc(M.name)+'"></label>'
+    +'<label class="fld" for="set-xday"><span>Х-день отказа от стиков</span><input id="set-xday" type="date" class="txt" value="'+esc(M.xday)+'"></label>'
+    +'<label class="fld" for="set-base"><span>Стиков в день до отказа</span><input id="set-base" type="number" inputmode="numeric" min="1" max="60" class="txt" value="'+esc(M.baseline)+'"></label>'
+    +'<label class="fld" for="set-price"><span>Цена пачки на 20 стиков, ₽</span><input id="set-price" type="number" inputmode="numeric" min="0" class="txt" value="'+(M.packPrice?esc(M.packPrice):'')+'"></label>'
+    +'<label class="fld" for="set-sky"><span>Небо</span><select id="set-sky" class="txt"><option value="classic"'+(M.sky!=='aurora'?' selected':'')+'>Классическое</option><option value="aurora"'+(M.sky==='aurora'?' selected':'')+(lv<4?' disabled':'')+'>Северное сияние'+(lv<4?' · откроется на 4 уровне':'')+'</option></select></label>'
+    +'<button class="btn ghost" data-act="saveset">Сохранить</button></section>';
+  h+='<section class="panel"><h2>Напоминания</h2><p class="small">Айфон не даёт веб-приложениям присылать уведомления, поэтому напоминания живут в Календаре: 7:45 утро, 12:30 вода и обед, 21:00 вечерний чек, 23:00 отбой через 30 минут.</p>'
+    +'<a class="btn ghost" style="text-align:center;text-decoration:none" href="reminders.ics" target="_blank" rel="noopener">Добавить в Календарь</a><p class="mute small">Откроется файл: нажми «Добавить все». Удалить можно в самом Календаре.</p></section>';
   var st=!GH?'Не настроена':SY.state==='sync'?'Синхронизирую…':SY.state==='err'?'Ошибка: '+(SY.err||''):SY.last?'Синхронизировано в '+hhmm(new Date(SY.last).getHours()*60+new Date(SY.last).getMinutes()):'Ожидание';
   var n=Object.keys(DIRTY).length+(S.metaDirty?1:0);
-  return '<section class="panel"><h2>Синхронизация с GitHub</h2><p class="small'+(SY.state==='err'?' bad':'')+'">'+esc(st)+(n?' · ждут отправки: '+n:'')+'</p>'
+  h+='<section class="panel"><h2>Синхронизация с GitHub</h2><p class="small'+(SY.state==='err'?' bad':'')+'">'+esc(st)+(n?' · ждут отправки: '+n:'')+'</p>'
     +'<label class="fld" for="gh-owner"><span>Логин GitHub</span><input id="gh-owner" class="txt" autocapitalize="off" autocorrect="off" spellcheck="false" value="'+esc(GH&&GH.owner||'')+'"></label>'
     +'<label class="fld" for="gh-repo"><span>Репозиторий с данными</span><input id="gh-repo" class="txt" autocapitalize="off" autocorrect="off" spellcheck="false" value="'+esc(GH&&GH.repo||'asai-data')+'"></label>'
     +'<label class="fld" for="gh-token"><span>Токен доступа. Хранится только на этом телефоне</span><input id="gh-token" type="password" class="txt" autocomplete="off" placeholder="'+(GH&&GH.token?'сохранён':'github_pat_…')+'"></label>'
     +'<div class="row2"><button class="btn ghost" data-act="ghsave">Сохранить</button><button class="btn" data-act="ghsync"'+(GH?'':' disabled')+'>Обновить</button></div>'
     +(GH?'<button class="link" data-act="ghoff">Отключить синхронизацию на этом телефоне</button>':'')+'</section>';
+  return h+'</div>';
 }
-document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&GH)pull()});
+
+/* ---------- render ---------- */
+function render(){
+  var app=$('#app'),y=window.scrollY;
+  if(!S.ready){app.innerHTML='<div class="boot">Загружаю героя…</div>';return}
+  var C=compute();
+  S.lastPhase=phase(nowMin());
+  var v={now:viewNow,log:viewLog,path:viewPath,smoke:viewSmoke,master:viewMaster}[S.tab]||viewNow;
+  app.innerHTML=skyHTML(C)+'<main>'+v(C)+'</main>'+tabbar();
+  window.scrollTo(0,y);
+  celebrate(C);
+}
+function typing(){var a=document.activeElement;return !!(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.tagName==='SELECT'))}
+function safeRender(){if(typing()){S.dirty=true;return}render()}
+var tt;
+function toast(m){var el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){el.classList.remove('show')},2600)}
+function modalOpen(){var el=$('#modal');return el&&!el.hidden}
+function showModal(o){
+  var el=$('#modal');
+  el.innerHTML='<div class="modal-card" role="dialog" aria-modal="true" aria-label="'+esc(o.title)+'">'+(o.rays===false?'':'<div class="rays" aria-hidden="true"></div>')+(o.art||'')+'<span class="kicker">'+esc(o.kicker)+'</span><b class="mt">'+esc(o.title)+'</b><p>'+esc(o.sub)+'</p>'+(o.dots||'')+'<button class="btn" '+(o.next?'data-next="1"':'data-close="1"')+'>'+esc(o.btn||'Дальше')+'</button></div>';
+  el.hidden=false;
+}
+function showIntro(i){S.intro=i;var it=INTRO[i],dots='<div class="dots">'+INTRO.map(function(_,k){return '<i'+(k===i?' class="on"':'')+'></i>'}).join('')+'</div>';showModal({kicker:it[0],title:it[1],sub:it[2],art:owl('art'),dots:dots,next:i<INTRO.length-1,btn:i<INTRO.length-1?'Дальше':'Начать',rays:false})}
+function celebrate(C){
+  if(modalOpen())return;
+  var lv=C.lv.lvl,done=C.miles.filter(function(m){return m.done}).map(function(m){return m.id});
+  var chDone=CH.map(function(_,i){return C.miles.filter(function(m){return m.ch===i}).every(function(m){return m.done})?i:-1}).filter(function(i){return i>=0});
+  var bDone=C.bosses.filter(function(b){return b.done}).map(function(b){return b.w});
+  if(!S.seen){
+    var s=null;try{s=JSON.parse(lsGet('asai.seen'))}catch(e){}
+    S.seen=s&&typeof s==='object'?s:{lvl:lv,miles:done,ch:chDone,boss:bDone};
+    lsSet('asai.seen',JSON.stringify(S.seen));
+  }
+  var sn=S.seen,shown=null;
+  var fb=bDone.filter(function(w){return (sn.boss||[]).indexOf(w)<0});
+  var fc=chDone.filter(function(i){return (sn.ch||[]).indexOf(i)<0});
+  var fm=done.filter(function(id){return (sn.miles||[]).indexOf(id)<0});
+  if(fb.length){var b=C.bosses.filter(function(x){return x.w===fb[0]})[0];shown={kicker:'Босс повержен',title:b.title,sub:'+'+b.xp+' XP. '+b.lore,art:bossArt(b.key,'art')}}
+  else if(lv>sn.lvl)shown={kicker:'Новый уровень',title:'Уровень '+lv,sub:'Звание: '+rank(lv)+'. '+(lv===3||lv===6||lv===10||lv===15?'Твой знак эволюционировал. ':'')+(lv===4?'Открыто северное сияние: включи его в настройках Мастера. ':'')+'До следующего уровня '+C.lv.need+' XP.',art:emblem(lv,(C.meta.name||'a').charAt(0).toUpperCase()).replace('class="emblem"','class="art"')};
+  else if(fc.length)shown={kicker:'Глава пройдена',title:CH[fc[0]].t,sub:CH[fc[0]].outro,art:owl('art')};
+  else if(fm.length){var m=C.miles.filter(function(x){return x.id===fm[0]})[0];shown={kicker:'Веха пройдена',title:m.t,sub:'+'+m.xp+' XP · глава «'+CH[m.ch].t+'»'}}
+  sn.lvl=Math.max(Math.min(sn.lvl,lv),lv);sn.miles=(sn.miles||[]).concat(fm);sn.ch=(sn.ch||[]).concat(fc);sn.boss=(sn.boss||[]).concat(fb);
+  lsSet('asai.seen',JSON.stringify(sn));
+  if(shown)showModal(shown);
+}
+
+/* ---------- live clock ---------- */
+function live(){
+  var m=nowMin(),els=document.querySelectorAll('[data-live]');
+  for(var i=0;i<els.length;i++){var el=els[i],k=el.getAttribute('data-live');el.textContent=k==='phase'?phaseText(m):k==='bedcd'?bedCd(m):k==='clean'?cleanText():el.textContent}
+}
+setInterval(function(){
+  if(!S.ready)return;
+  var t=todayISO(),ph=phase(nowMin());
+  if(t!==S.lastToday){if(S.view===S.lastToday){S.view=t;S.dm=null}S.lastToday=t;safeRender();return}
+  if(ph!==S.lastPhase){safeRender();return}
+  live();
+},20000);
+
+/* ---------- craving ---------- */
+var tmr=null;
+function tickStart(){clearInterval(tmr);tmr=setInterval(function(){var left=S.craving?S.craving.end-Date.now():0;if(left<=0){clearInterval(tmr);safeRender();toast('10 минут прошли')}else{var el=document.getElementById('crave-t');if(el)el.textContent=mmss(left)}},1000)}
+function startCraving(){S.craving={end:Date.now()+600000,tip:TIPS[Math.floor(Math.random()*TIPS.length)]};lsSet('asai.craving',JSON.stringify(S.craving));tickStart()}
+function restoreCraving(){var c=null;try{c=JSON.parse(lsGet('asai.craving'))}catch(e){}if(c&&c.end&&Date.now()-c.end<3600000){S.craving=c;if(c.end>Date.now())tickStart()}}
+function endCraving(){S.craving=null;lsSet('asai.craving','');clearInterval(tmr)}
+
+/* ---------- actions ---------- */
+function logStick(trig){
+  var now=new Date(),m=S.stickT!=null?S.stickT:now.getHours()*60+now.getMinutes(),t=hhmm(m),today=todayISO();
+  var first=today>=S.meta.xday&&!((S.days[today]||{}).sticks||[]).length;
+  mutate(today,function(d){d.sticks=d.sticks||[];d.sticks.push({t:t,trig:trig});d.sticks.sort(function(a,b){return skey(a.t)-skey(b.t)})},false,'Записано '+t+' · '+trig);
+  if(first)setTimeout(function(){toast('Честно. Камбэк начат: 3 часа без стика, и +20 XP')},2700);
+}
+function food(d){d.food=d.food||{};return d.food}
+function act(a,el){
+  var v=el.dataset.v,dd=Number(el.dataset.d),k=el.dataset.k,date=el.dataset.date||ctxDate(),today=todayISO();
+  if(a==='tab'){S.tab=v;S.stickT=null;S.oath=null;lsSet('asai.tab',v);if(v==='now')S.view=today;if(el.dataset.date){S.view=el.dataset.date;S.dm=null}render();window.scrollTo(0,0)}
+  else if(a==='prev'){S.view=addDays(S.view,-1);S.dm=null;S.oath=null;render()}
+  else if(a==='next'){if(S.view<today){S.view=addDays(S.view,1);S.dm=null;S.oath=null;render()}}
+  else if(a==='bed'){var m=draft(date);m.bedRel=clamp(m.bedRel+dd,0,720);render()}
+  else if(a==='wake'){var w=draft(date);w.wake=(w.wake+dd+1440)%1440;render()}
+  else if(a==='mood'){draft(date).mood=Number(v);render()}
+  else if(a==='morning'){var m2=draft(date);if(m2.mood==null)return;mutate(date,function(d){d.morning=true;d.bedRel=m2.bedRel;d.wake=m2.wake;d.mood=m2.mood},false,'Утро записано')}
+  else if(a==='quest'){mutate(date,function(d){var q=d.quests[Number(v)];if(q)q.done=!q.done})}
+  else if(a==='duo'){mutate(date,function(d){var u=duoFor(date,d);d.duo={text:u.text,done:!u.done}},false)}
+  else if(a==='wdone'){mutate(date,function(d){d.workout=d.workout||{types:[]};d.workout.done=!d.workout.done})}
+  else if(a==='wtype'){mutate(date,function(d){d.workout=d.workout||{types:[]};var ty=d.workout.types=d.workout.types||[],x=ty.indexOf(v);if(x>=0)ty.splice(x,1);else ty.push(v)})}
+  else if(a==='wnum'){mutate(date,function(d){d.workout=d.workout||{types:[]};d.workout[k]=clamp((d.workout[k]||0)+dd,0,200)})}
+  else if(a==='water'){mutate(date,function(d){var f=food(d);f.water=clamp((f.water||0)+dd,0,20)},false,dd>0?'Стакан воды':'')}
+  else if(a==='meal'){mutate(date,function(d){var f=food(d);f.meals=f.meals||{};f.meals[v]=!f.meals[v]})}
+  else if(a==='nomeat'){mutate(date,function(d){var f=food(d);f.nomeat=!f.nomeat})}
+  else if(a==='foodok'){mutate(date,function(d){food(d).ok=Number(v)})}
+  else if(a==='skin'){mutate(date,function(d){d.skin=d.skin||{};d.skin[v]=!d.skin[v]})}
+  else if(a==='skinstate'){mutate(date,function(d){d.skin=d.skin||{};d.skin.state=Number(v)})}
+  else if(a==='stress'){mutate(date,function(d){d.stress=Number(v)})}
+  else if(a==='stick'){logStick(v)}
+  else if(a==='stime'){var nk=mkey(nowMin()),kk=mkey(S.stickT!=null?S.stickT:nowMin())+dd;kk=clamp(kk,300,nk);S.stickT=kk>=nk?null:kk%1440;render()}
+  else if(a==='stimenow'){S.stickT=null;render()}
+  else if(a==='delstick'){var di=Number(v),ds=S.days[today]&&S.days[today].sticks&&S.days[today].sticks[di];if(!ds)return;mutate(today,function(d){d.sticks.splice(di,1)},false,'Удалено '+ds.t)}
+  else if(a==='cstart'){startCraving();render()}
+  else if(a==='cravego'){startCraving();S.tab='smoke';render();window.scrollTo(0,0)}
+  else if(a==='ccancel'){endCraving();render()}
+  else if(a==='cwin'){endCraving();mutate(today,function(d){d.cravings=(d.cravings||0)+1},false,'Выдержал')}
+  else if(a==='clost'){endCraving();logStick('Тяга')}
+  else if(a==='closeday'){
+    var cd=S.days[date]||newDay(date);
+    if(date>=S.meta.xday&&!(cd.sticks||[]).length){S.oath=date;render();return}
+    mutate(date,function(d){d.closed=true;d.closedAt=Date.now()},false,'День закрыт');
+  }
+  else if(a==='oathyes'){S.oath=null;mutate(date,function(d){d.closed=true;d.oath=true;d.closedAt=Date.now()},false,'Чистый день')}
+  else if(a==='oathno'){S.oath=null;S.tab='smoke';render();window.scrollTo(0,0)}
+  else if(a==='reopen'){mutate(date,function(d){d.closed=false;delete d.oath})}
+  else if(a==='side'){var si=Number(v),was=S.days[date]&&S.days[date].side&&S.days[date].side[si];if(!was)return;var becomes=!was.done;mutate(date,function(d){d.side[si].done=!d.side[si].done});if(becomes&&was.badge)showModal({kicker:'Трофей получен',title:was.badge,sub:'+'+was.xp+' XP · '+was.title})}
+  else if(a==='flag'){var nm=clone(S.meta);nm.flags=nm.flags||{};nm.flags[v]=true;saveMeta(nm)}
+  else if(a==='saymode'){S.sayMode=v;render()}
+  else if(a==='saysend'){var si2=document.getElementById('say-in');if(si2){var tx=si2.value;si2.value='';say(tx)}}
+  else if(a==='intro'){showIntro(0)}
+  else if(a==='saveset'){
+    var nm2=clone(S.meta),gv=function(id){return (document.getElementById(id)||{}).value};
+    var nv=gv('set-name'),xv=gv('set-xday'),bv=Number(gv('set-base')),pv=Number(gv('set-price')),sv=gv('set-sky');
+    if(nv&&nv.trim())nm2.name=nv.trim().slice(0,20);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(xv||''))nm2.xday=xv;
+    if(bv>=1&&bv<=60)nm2.baseline=Math.round(bv);
+    nm2.packPrice=pv>0?Math.round(pv):0;
+    if(sv==='aurora'||sv==='classic')nm2.sky=sv;
+    if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+    saveMeta(nm2);toast('Настройки сохранены');
+  }
+  else if(a==='ghsave'){
+    var go=((document.getElementById('gh-owner')||{}).value||'').trim(),gr=((document.getElementById('gh-repo')||{}).value||'').trim(),gt=((document.getElementById('gh-token')||{}).value||'').trim();
+    if(!go||!gr){toast('Укажи логин и репозиторий');return}
+    if(!gt&&!(GH&&GH.token)){toast('Вставь токен');return}
+    GH={owner:go,repo:gr,token:gt||GH.token};lsSet('asai.gh',JSON.stringify(GH));
+    if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+    toast('Сохранено, синхронизирую');pull();
+  }
+  else if(a==='ghsync'){push().then(pull)}
+  else if(a==='ghoff'){GH=null;try{localStorage.removeItem('asai.gh')}catch(e){}render()}
+}
+function say(text){
+  text=String(text||'').trim();if(!text)return;
+  var t=todayISO(),now=new Date();
+  if(S.sayMode==='event'){mutate(t,function(d){d.events=(d.events||[]).concat([{text:text.slice(0,300),at:Date.now()}]).slice(-8)},true);render();toast('Мастер перестроит день в течение часа')}
+  else{mutate(t,function(d){d.note=(String(d.note||'').trim()+'\n'+hhmm(now.getHours()*60+now.getMinutes())+' '+text.slice(0,300)).trim()},true);render();toast('Заметка для Мастера сохранена')}
+}
+
+/* ---------- events ---------- */
+var app=$('#app');
+app.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||b.disabled)return;act(b.dataset.act,b)});
+$('#modal').addEventListener('click',function(e){
+  if(e.target.closest('[data-next]')){showIntro((S.intro||0)+1);return}
+  if(e.target.closest('[data-close]')||e.target.id==='modal'){$('#modal').hidden=true;if(S.intro!=null){S.intro=null;lsSet('asai.intro','1')}setTimeout(function(){if(S.ready)celebrate(compute())},300)}
+});
+var saveT=null;
+function saveField(el){
+  var f=el.getAttribute('data-save'),val=el.value,date=ctxDate();
+  var cur=S.days[date]&&S.days[date][f];
+  if((cur||'')===val)return;
+  mutate(date,function(d){d[f]=val},true);
+}
+app.addEventListener('input',function(e){var el=e.target;if(!el.getAttribute||!el.getAttribute('data-save'))return;clearTimeout(saveT);saveT=setTimeout(function(){saveField(el)},700)});
+app.addEventListener('focusout',function(e){
+  var el=e.target;
+  if(el.getAttribute&&el.getAttribute('data-save')){clearTimeout(saveT);saveField(el)}
+  if(S.dirty){S.dirty=false;setTimeout(function(){if(!typing())render()},250)}
+});
+app.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.id==='say-in'){e.preventDefault();var q=e.target.value;e.target.value='';say(q)}
+  else if(e.key==='Enter'&&e.target.getAttribute&&e.target.getAttribute('data-save')){e.target.blur()}
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&S.ready){
+    var t=todayISO();
+    if(S.lastToday&&S.lastToday!==t){if(S.view===S.lastToday){S.view=t;S.dm=null}S.lastToday=t}
+    safeRender();if(GH)pull();
+  }
+});
 window.addEventListener('online',function(){if(GH){push().then(pull)}});
 
 /* ---------- boot ---------- */
 function boot(){
   var raw=lsGet('asai.v1');if(raw){try{S.days=JSON.parse(raw).days||{}}catch(e){}}
-  var mm=lsGet('asai.meta');if(mm){try{S.meta=Object.assign(clone(DEFM),JSON.parse(mm))}catch(e){}}
+  var mm=lsGet('asai.meta');if(mm){try{applyMeta(JSON.parse(mm))}catch(e){}}
   restoreCraving();
   S.ready=true;render();
+  if(!lsGet('asai.intro'))showIntro(0);
   if(GH)pull();
   setInterval(function(){if(GH&&document.visibilityState==='visible')pull()},300000);
   if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){r.update()}).catch(function(){});var reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',function(){if(reloaded||typing())return;reloaded=true;location.reload()})}
@@ -1252,6 +1175,5 @@ S.lastToday=todayISO();
 boot();
 })();
 </script>
-
 </body>
 </html>
