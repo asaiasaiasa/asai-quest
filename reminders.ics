@@ -20,13 +20,13 @@ DTSTAMP:20261012T120000Z
 DTSTART;TZID=Europe/Moscow:20261013T074500
 DTEND;TZID=Europe/Moscow:20261013T075000
 RRULE:FREQ=DAILY
-SUMMARY:asai: Записать утро
-DESCRIPTION:Как спал? Запиши сон и бодрость.
+SUMMARY:asai: сундук дня и утро
+DESCRIPTION:Один тап по сундуку засчитывает день. Потом запиши сон и бодрость.
 URL:https://asaiasaiasa.github.io/asai-quest/
 TRANSP:TRANSPARENT
 BEGIN:VALARM
 ACTION:DISPLAY
-DESCRIPTION:asai: Записать утро
+DESCRIPTION:asai: сундук дня и утро
 TRIGGER:PT0M
 END:VALARM
 END:VEVENT
@@ -75,6 +75,22 @@ TRANSP:TRANSPARENT
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:asai: Отбой через 30 минут
+TRIGGER:PT0M
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:asai-reminder-5@asaiasaiasa.github.io
+DTSTAMP:20261012T120000Z
+DTSTART;TZID=Europe/Moscow:20261013T182000
+DTEND;TZID=Europe/Moscow:20261013T182500
+RRULE:FREQ=DAILY
+SUMMARY:asai: по дороге домой
+DESCRIPTION:Сундук, вода и пара тапов. Хватит и минуты.
+URL:https://asaiasaiasa.github.io/asai-quest/
+TRANSP:TRANSPARENT
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:asai: по дороге домой
 TRIGGER:PT0M
 END:VALARM
 END:VEVENT
